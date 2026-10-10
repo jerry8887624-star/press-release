@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12305C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="新聞稿生成器">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="ds/styles.css">
+<script src="ds/_ds_bundle.js"></script>
+<script src="engine.js"></script>
+<style>
+:root{--color-bg:#F3F5F9;--color-surface:#FFFFFF;--color-text:#14213A;--color-accent:#2F6FD6;--color-divider:#D8DEE9;--color-neutral-400:#AEB6C4;--color-accent-100:#F1F6FE;--color-accent-200:#E7EFFC;--color-accent-300:#C6D8F6;--color-accent-400:#8FB2EC;--color-accent-500:#5A8DE0;--color-accent-600:#255FC0;--color-accent-700:#1C4C9C;--color-accent-800:#173D7A;--color-accent-900:#12305C;--navy:#12305C;--on-accent:#FFFFFF;--muted:#55627A;--warn:#B4540A;--warn-bg:#FFF3E6;--warn-bd:#F1C99E;--ok:#1D7A46;--ok-bg:#E8F5EE;--ok-bd:#A9D8BD;--gold:#C78A00;--paper:#FFFFFF;--paper-ink:#1A1A1A;--paper-muted:#5B6270;--scrim:rgba(10,22,44,.42);--bar:rgba(243,245,249,.94);--font-kai:"BiauKai","DFKai-SB","標楷體","TW-Kai","Kaiti TC","STKaiti","Noto Serif TC","Songti TC",serif;--font-ui:"Barlow",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;--font-cond:"Barlow Condensed","Barlow",-apple-system,"PingFang TC","Noto Sans TC",sans-serif;--dur:240ms;--dur-s:300ms;--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.22,1.18,.36,1)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]),body:not([data-theme=light]){--color-bg:#0B1220;--color-surface:#131D30;--color-text:#E5EBF5;--color-accent:#7EA8F2;--color-divider:#2A3852;--color-neutral-400:#5A6880;--color-accent-100:#132140;--color-accent-200:#1A2C50;--color-accent-300:#2A4677;--color-accent-400:#4F7AC4;--color-accent-500:#6A95E0;--color-accent-600:#97BAF5;--color-accent-700:#B4CEF8;--color-accent-800:#D3E2FB;--color-accent-900:#0E2347;--navy:#0E2347;--on-accent:#0B1220;--muted:#9AA8BF;--warn:#F2A65A;--warn-bg:#2B1D0F;--warn-bd:#6B4320;--ok:#5CC98A;--ok-bg:#0F261A;--ok-bd:#245A3B;--gold:#E3B341;--paper:#141C2B;--paper-ink:#ECE8DE;--paper-muted:#A3ACBC;--scrim:rgba(0,0,0,.6);--bar:rgba(11,18,32,.94)}}
+:root[data-theme=dark],body[data-theme=dark]{--color-bg:#0B1220;--color-surface:#131D30;--color-text:#E5EBF5;--color-accent:#7EA8F2;--color-divider:#2A3852;--color-neutral-400:#5A6880;--color-accent-100:#132140;--color-accent-200:#1A2C50;--color-accent-300:#2A4677;--color-accent-400:#4F7AC4;--color-accent-500:#6A95E0;--color-accent-600:#97BAF5;--color-accent-700:#B4CEF8;--color-accent-800:#D3E2FB;--color-accent-900:#0E2347;--navy:#0E2347;--on-accent:#0B1220;--muted:#9AA8BF;--warn:#F2A65A;--warn-bg:#2B1D0F;--warn-bd:#6B4320;--ok:#5CC98A;--ok-bg:#0F261A;--ok-bd:#245A3B;--gold:#E3B341;--paper:#141C2B;--paper-ink:#ECE8DE;--paper-muted:#A3ACBC;--scrim:rgba(0,0,0,.6);--bar:rgba(11,18,32,.94)}
+@media (prefers-reduced-motion:reduce){:root{--dur:0ms;--dur-s:0ms}}
+html,body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-ui);font-size:16px;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{overscroll-behavior-y:none}
+a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}
+button{font-family:inherit;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+input,textarea{font-family:inherit;font-size:16px}
+textarea{resize:none}
+</style>
+</helmet>
+<div style="min-height:100dvh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-ui)">
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+
+<header style="position:sticky;top:0;z-index:30;background:var(--bar);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);padding-top:env(safe-area-inset-top)">
+  <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 8px 0 16px;max-width:1280px;margin:0 auto">
+    <div style="width:30px;height:30px;flex:none;display:grid;place-items:center;background:var(--navy);color:#fff;border:1px solid var(--color-accent-300);font-family:var(--font-kai);font-size:18px;line-height:1">稿</div>
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div style="font-size:17px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">空軍新聞稿生成器</div>
+      <div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px">{{ saveLabel }}</div>
+    </div>
+    <button aria-label="選單" onClick="{{ openMenu }}" style="width:48px;height:48px;display:grid;place-items:center;border:0;background:transparent;color:var(--color-text);cursor:pointer;transition:transform 120ms" style-active="transform:scale(.92);background:var(--color-accent-200)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="19" cy="12" r="1.2"></circle></svg>
+    </button>
+  </div>
+  <nav aria-label="步驟" style="max-width:1280px;margin:0 auto;padding:0 12px 10px;display:grid;grid-template-columns:{{ stepCols }};gap:4px">
+    <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
+      <button onClick="{{ st.onClick }}" aria-current="{{ st.aria }}" style="display:flex;flex-direction:column;align-items:stretch;gap:6px;min-height:48px;padding:4px 2px 0;border:0;background:transparent;cursor:pointer;color:{{ st.labelFg }}" style-active="transform:scale(.97)">
+        <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+          <span style="width:20px;height:20px;flex:none;display:grid;place-items:center;font:600 13px/1 var(--font-cond);border:1px solid {{ st.bd }};background:{{ st.numBg }};color:{{ st.numFg }};transition:background var(--dur) var(--ease)">{{ st.mark }}</span>
+          <span style="font-size:13px;font-weight:{{ st.weight }};white-space:nowrap;letter-spacing:-.01em">{{ st.label }}</span>
+        </div>
+        <span style="height:3px;background:{{ st.line }};transition:background var(--dur) var(--ease)"></span>
+      </button>
+    </sc-for>
+  </nav>
+</header>
+
+<div style="display:grid;grid-template-columns:{{ gridCols }};gap:{{ gridGap }};max-width:1280px;margin:0 auto;padding:{{ gridPad }};align-items:start">
+
+<main style="display:{{ leftDisplay }};min-width:0;position:relative">
+  <div style="padding:16px 16px 0;opacity:{{ enterO }};transform:translateX({{ enterX }});transition:{{ enterT }}">
+
+    <sc-if value="{{ tourOn }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 8px 12px 14px;margin-bottom:16px;background:var(--color-accent-100);border:1px solid var(--color-accent-300);color:var(--color-accent-800)">
+        <div style="flex:1;font-size:15px;line-height:1.5"><b style="font-family:var(--font-cond);letter-spacing:.06em">試寫導覽 {{ tourStep }}/4</b>　{{ tourText }}</div>
+        <button onClick="{{ endTour }}" style="flex:none;min-height:32px;padding:0 10px;border:0;background:transparent;color:var(--color-accent-800);font-size:14px;cursor:pointer;text-decoration:underline">結束</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isS1 }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:16px">
+        <div style="font:600 13px/1 var(--font-cond);letter-spacing:.16em;color:var(--color-accent-700)">STEP 01</div>
+        <h2 style="font-family:var(--font-ui);font-weight:700;font-size:24px;margin:0;letter-spacing:.01em">選擇稿型</h2>
+        <div style="font-size:15px;color:var(--muted)">點一下即進入下一步</div>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ typeCols }};gap:14px;padding-bottom:8px">
+        <sc-for list="{{ types }}" as="t" hint-placeholder-count="7">
+          <button class="blueprint" onClick="{{ t.onClick }}" style="display:grid;grid-template-columns:44px minmax(0,1fr) 24px;align-items:center;gap:14px;min-height:76px;padding:12px 14px;text-align:left;cursor:pointer;color:var(--color-text);background:{{ t.bg }};border:1px solid {{ t.bd }};transition:background var(--dur) var(--ease),border-color var(--dur) var(--ease),transform 120ms" style-active="transform:scale(.97)">
+            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+            <span style="width:44px;height:44px;display:grid;place-items:center;border:1px solid {{ t.iconBd }};color:{{ t.iconFg }};background:{{ t.iconBg }}">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.d }}"></path></svg>
+            </span>
+            <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+              <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:18px;font-weight:700">{{ t.name }}</span><sc-if value="{{ t.popular }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent" style="font-size:12px;padding:2px 8px;font-weight:600">最常用</span></sc-if></span>
+              <span style="font-size:15px;color:var(--muted);line-height:1.4">{{ t.desc }}</span>
+            </span>
+            <span style="color:{{ t.iconFg }};display:grid;place-items:center">
+              <sc-if value="{{ t.on }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+              <sc-if value="{{ t.off }}" hint-placeholder-val="{{ true }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></sc-if>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isS2 }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px">
+        <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+          <div style="font:600 13px/1 var(--font-cond);letter-spacing:.16em;color:var(--color-accent-700)">STEP 02</div>
+          <h2 style="font-family:var(--font-ui);font-weight:700;font-size:24px;margin:0">基本資料</h2>
+        </div>
+        <button onClick="{{ toStep1 }}" class="tag tag-accent" style="min-height:36px;padding:0 12px;border:0;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px">{{ typeName }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 9 6 6 6-6"></path></svg></button>
+      </div>
+      <div ref="{{ formRef }}" style="display:flex;flex-direction:column;gap:22px;padding-bottom:8px">
+        <sc-for list="{{ fields }}" as="f" hint-placeholder-count="5">
+          <sc-if value="{{ f.isToggle }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ f.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 14px;border:1px dashed var(--color-divider);background:transparent;color:var(--color-text);cursor:pointer;text-align:left" style-active="transform:scale(.98)">
+              <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:16px;font-weight:600">{{ f.label }}</span><span style="font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.sub }}</span></span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="transform:{{ f.rot }};transition:transform var(--dur) var(--ease)"><path d="m6 9 6 6 6-6"></path></svg>
+            </button>
+          </sc-if>
+          <sc-if value="{{ f.isField }}" hint-placeholder-val="{{ true }}">
+            <div class="field" style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px;min-height:24px">
+                <label style="flex:1;font-size:15px;font-weight:600;color:var(--color-text);margin:0">{{ f.label }}</label>
+                <sc-if value="{{ f.isDate }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:6px">
+                    <button onClick="{{ f.setToday }}" style="min-height:36px;min-width:52px;padding:0 10px;border:1px solid var(--color-divider);background:transparent;color:var(--color-accent-700);font-size:14px;cursor:pointer" style-active="transform:scale(.95)">今天</button>
+                    <button onClick="{{ f.setYest }}" style="min-height:36px;min-width:52px;padding:0 10px;border:1px solid var(--color-divider);background:transparent;color:var(--color-accent-700);font-size:14px;cursor:pointer" style-active="transform:scale(.95)">昨天</button>
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ f.isChips }}" hint-placeholder-val="{{ false }}">
+                <div role="group" style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="3">
+                    <button onClick="{{ o.onClick }}" aria-pressed="{{ o.on }}" style="min-height:46px;min-width:64px;padding:0 16px;font-size:16px;white-space:nowrap;flex:none;cursor:pointer;border:1px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};font-weight:{{ o.w }};transition:background 160ms var(--ease),color 160ms,transform 120ms" style-active="transform:scale(.95)">{{ o.label }}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ true }}">
+                <input class="input" data-field="1" type="text" enterkeyhint="next" value="{{ f.value }}" placeholder="{{ f.ph }}" onInput="{{ f.onInput }}" onBlur="{{ f.onBlur }}" onFocus="{{ f.onFocus }}" onKeyDown="{{ f.onKeyDown }}" style="min-height:50px;padding:12px 14px;font-size:17px;border-color:{{ f.bd }}">
+              </sc-if>
+              <sc-if value="{{ f.isNum }}" hint-placeholder-val="{{ false }}">
+                <input class="input" data-field="1" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="next" value="{{ f.value }}" placeholder="0" onInput="{{ f.onInput }}" onBlur="{{ f.onBlur }}" onFocus="{{ f.onFocus }}" onKeyDown="{{ f.onKeyDown }}" style="min-height:50px;padding:12px 14px;font-size:17px;max-width:180px;border-color:{{ f.bd }}">
+              </sc-if>
+              <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}">
+                <textarea class="input" data-field="1" rows="{{ f.rows }}" placeholder="{{ f.ph }}" value="{{ f.value }}" onInput="{{ f.onInput }}" onBlur="{{ f.onBlur }}" onFocus="{{ f.onFocus }}" style="padding:12px 14px;font-size:17px;line-height:1.6;min-height:auto;border-color:{{ f.bd }}"></textarea>
+              </sc-if>
+              <sc-if value="{{ f.isDate }}" hint-placeholder-val="{{ false }}">
+                <input class="input" type="date" value="{{ f.value }}" onInput="{{ f.onInput }}" onChange="{{ f.onInput }}" style="min-height:50px;padding:10px 14px;font-size:17px;width:100%;-webkit-appearance:none;appearance:none">
+                <div style="font-size:14px;color:var(--color-accent-700)">{{ f.roc }}</div>
+              </sc-if>
+              <sc-if value="{{ f.hasHint }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:6px;font-size:14px;color:{{ f.hintFg }}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3"></path></svg>{{ f.hint }}
+                </div>
+              </sc-if>
+              <sc-if value="{{ f.hasErr }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:14px;color:var(--warn)">{{ f.err }}</div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isS3 }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px">
+        <div style="font:600 13px/1 var(--font-cond);letter-spacing:.16em;color:var(--color-accent-700)">STEP 03</div>
+        <h2 style="font-family:var(--font-ui);font-weight:700;font-size:24px;margin:0">挑選語句</h2>
+      </div>
+      <sc-if value="{{ noPhrases }}" hint-placeholder-val="{{ false }}">
+        <div class="blueprint" style="padding:20px 18px;display:flex;flex-direction:column;gap:12px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="font-size:17px;font-weight:600">「{{ typeName }}」為固定格式</div>
+          <div style="font-size:15px;color:var(--muted);line-height:1.6">這類稿件不需要挑選長官語句，直接到成稿確認即可。</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ hasPhrases }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:14px">
+          <span style="font-size:14px;color:var(--muted)">依此推薦</span>
+          <sc-for list="{{ detTags }}" as="dt" hint-placeholder-count="2"><span class="tag tag-accent" style="font-size:14px;padding:4px 10px;font-weight:600;white-space:nowrap;border:1px solid var(--color-accent-300)">{{ dt.t }}</span></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px">
+          <button class="btn btn-secondary" onClick="{{ doRecommend }}" style="min-height:46px;font-family:var(--font-ui);font-size:15px;font-weight:600;padding:0 6px" style-active="transform:scale(.96)">推薦一組</button>
+          <button class="btn btn-secondary" onClick="{{ doShuffle }}" style="min-height:46px;font-family:var(--font-ui);font-size:15px;font-weight:600;padding:0 6px" style-active="transform:scale(.96)">換一組</button>
+          <button class="btn btn-secondary" onClick="{{ openCompose }}" style="min-height:46px;font-family:var(--font-ui);font-size:15px;font-weight:600;padding:0 6px;color:var(--color-accent-700)" style-active="transform:scale(.96)">＋自己寫</button>
+        </div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.5">點一下加入，再點移除・長按可編輯・<span style="color:var(--gold)">★</span> 取自長官實際講話</div>
+        <div style="display:flex;flex-direction:column;gap:22px;padding-bottom:8px">
+          <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+            <section style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:baseline;gap:8px">
+                <h3 style="font-family:var(--font-ui);font-size:17px;font-weight:700;margin:0">{{ g.cat }}</h3>
+                <span style="font:600 14px/1 var(--font-cond);letter-spacing:.06em;color:{{ g.countFg }}">{{ g.countLabel }}</span>
+              </div>
+              <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="2">
+                <div role="button" tabindex="0" aria-pressed="{{ it.on }}" onClick="{{ it.onClick }}" onPointerDown="{{ it.onDown }}" onPointerMove="{{ it.onMove }}" onPointerUp="{{ it.onUp }}" onPointerCancel="{{ it.onUp }}" onPointerLeave="{{ it.onUp }}" onContextMenu="{{ it.onCtx }}" onKeyDown="{{ it.onKey }}" style="display:flex;align-items:flex-start;gap:12px;padding:13px 12px 13px 14px;min-height:56px;border:1px solid {{ it.bd }};background:{{ it.bg }};cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:background 160ms var(--ease),border-color 160ms,transform 120ms" style-active="transform:scale(.985)">
+                  <span style="width:22px;height:22px;flex:none;margin-top:2px;display:grid;place-items:center;border:1.5px solid {{ it.boxBd }};background:{{ it.boxBg }};color:var(--on-accent);transition:background 160ms var(--ease),border-color 160ms">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transform:{{ it.ckS }};opacity:{{ it.ckO }};transition:transform 220ms var(--spring),opacity 120ms"><path d="M20 6 9 17l-5-5"></path></svg>
+                  </span>
+                  <sc-if value="{{ it.notEditing }}" hint-placeholder-val="{{ true }}">
+                    <span style="flex:1;min-width:0;font-size:16px;line-height:1.6;color:var(--color-text);text-wrap:pretty">{{ it.text }}<sc-if value="{{ it.star }}" hint-placeholder-val="{{ false }}"><span aria-label="取自長官實際講話" style="color:var(--gold);margin-left:4px">★</span></sc-if><sc-if value="{{ it.mine }}" hint-placeholder-val="{{ false }}"><span class="tag tag-neutral" style="margin-left:6px;font-size:12px;padding:1px 6px">我的</span></sc-if></span>
+                    <sc-if value="{{ it.on }}" hint-placeholder-val="{{ false }}">
+                      <button aria-label="編輯語句" onClick="{{ it.onEdit }}" onPointerDown="{{ it.stop }}" style="flex:none;width:40px;height:40px;margin:-8px -4px -8px 0;display:grid;place-items:center;border:0;background:transparent;color:var(--color-accent-700);cursor:pointer" style-active="transform:scale(.9)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></button>
+                    </sc-if>
+                  </sc-if>
+                  <sc-if value="{{ it.editing }}" hint-placeholder-val="{{ false }}">
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px" onClick="{{ it.stop }}" onPointerDown="{{ it.stop }}">
+                      <textarea class="input" rows="3" autofocus value="{{ it.text }}" onInput="{{ it.onText }}" style="font-size:16px;line-height:1.6;padding:10px 12px;min-height:auto;background:var(--color-surface);border-color:var(--color-accent)"></textarea>
+                      <div style="display:flex;flex-wrap:wrap;gap:8px">
+                        <button class="btn btn-primary" onClick="{{ it.onDone }}" style="min-height:44px;padding:0 16px;font-family:var(--font-ui);font-size:15px">完成</button>
+                        <button class="btn btn-secondary" onClick="{{ it.onSaveMy }}" style="min-height:44px;padding:0 14px;font-family:var(--font-ui);font-size:15px">存入我的語庫</button>
+                        <button class="btn btn-ghost" onClick="{{ it.onRemove }}" style="min-height:44px;padding:0 10px;font-family:var(--font-ui);font-size:15px;color:var(--warn)">移除</button>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </section>
+          </sc-for>
+        </div>
+      </sc-if>
+    </sc-if>
+    <div style="height:{{ leftPadB }}"></div>
+  </div>
+
+  <div style="position:{{ barPos }};left:0;right:0;bottom:{{ barBottom }};z-index:25;background:var(--bar);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--color-divider);padding:12px 16px calc(12px + env(safe-area-inset-bottom))">
+    <div style="display:flex;align-items:center;gap:10px;max-width:640px;margin:0 auto">
+      <sc-if value="{{ isS1 }}" hint-placeholder-val="{{ true }}">
+        <button class="btn btn-primary blueprint" onClick="{{ toStep2 }}" style="flex:1;min-height:54px;font-family:var(--font-ui);font-size:18px;font-weight:700" style-active="transform:scale(.97)"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>下一步：填寫基本資料<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"></path></svg></button>
+      </sc-if>
+      <sc-if value="{{ isS2 }}" hint-placeholder-val="{{ false }}">
+        <button class="btn btn-secondary" aria-label="上一步" onClick="{{ toStep1 }}" style="width:54px;min-height:54px;padding:0;flex:none" style-active="transform:scale(.95)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg></button>
+        <button class="btn btn-primary blueprint" onClick="{{ smartNext }}" style="flex:1;min-height:54px;font-family:var(--font-ui);font-size:18px;font-weight:700" style-active="transform:scale(.97)"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>✦ 智慧帶入並下一步</button>
+      </sc-if>
+      <sc-if value="{{ isS3 }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+          <span style="font-size:13px;color:var(--muted)">已選</span>
+          <span style="font-size:18px;font-weight:700;white-space:nowrap"><span style="font:600 26px/1 var(--font-cond);color:var(--color-accent-700)">{{ selCount }}</span> 句</span>
+        </div>
+        <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ true }}">
+          <button class="btn btn-primary blueprint" onClick="{{ toStep4 }}" style="flex:none;min-width:190px;min-height:54px;font-family:var(--font-ui);font-size:18px;font-weight:700" style-active="transform:scale(.97)"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>預覽成稿<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"></path></svg></button>
+        </sc-if>
+        <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ false }}">
+          <button class="btn btn-secondary" onClick="{{ openCompose }}" style="min-height:48px;padding:0 18px;font-family:var(--font-ui);font-size:16px">＋自己寫一句</button>
+        </sc-if>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{ showFab }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ openPreview }}" class="elev-md" style="position:fixed;right:16px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:24;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border:1px solid var(--color-divider);background:var(--color-surface);color:var(--color-accent-700);font-size:16px;font-weight:600;white-space:nowrap;cursor:pointer" style-active="transform:scale(.95)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path></svg>預覽
+    </button>
+  </sc-if>
+</main>
+
+<aside style="display:{{ rightDisplay }};flex-direction:column;min-width:0;position:{{ rightPos }};top:{{ rightTop }};max-height:{{ rightMaxH }};overflow:{{ rightOverflow }}">
+  <div style="padding:16px 16px 0;display:flex;flex-direction:column;gap:14px;opacity:{{ enterO4 }};transform:translateX({{ enterX4 }});transition:{{ enterT }}">
+    <div style="display:flex;align-items:flex-end;gap:12px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+        <div style="font:600 13px/1 var(--font-cond);letter-spacing:.16em;color:var(--color-accent-700)">{{ outKicker }}</div>
+        <h2 style="font-family:var(--font-ui);font-weight:700;font-size:24px;margin:0">{{ outTitle }}</h2>
+      </div>
+    </div>
+    <sc-if value="{{ tourOn4 }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 8px 12px 14px;background:var(--color-accent-100);border:1px solid var(--color-accent-300);color:var(--color-accent-800)">
+        <div style="flex:1;font-size:15px;line-height:1.5"><b style="font-family:var(--font-cond);letter-spacing:.06em">試寫導覽 4/4</b>　{{ tourText }}</div>
+        <button onClick="{{ endTour }}" style="flex:none;min-height:32px;padding:0 10px;border:0;background:transparent;color:var(--color-accent-800);font-size:14px;cursor:pointer;text-decoration:underline">結束</button>
+      </div>
+    </sc-if>
+    <button onClick="{{ openChecks }}" style="display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:0 12px 0 14px;border:1px solid {{ chk.bd }};background:{{ chk.bg }};color:{{ chk.fg }};font-size:16px;font-weight:700;cursor:pointer;text-align:left;transition:transform 120ms" style-active="transform:scale(.98)">
+      <sc-if value="{{ chk.ok }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3"></path></svg></sc-if>
+      <sc-if value="{{ chk.warn }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"></path></svg></sc-if>
+      <span style="flex:1">{{ chk.label }}</span>
+      <span style="font-size:14px;font-weight:500">{{ chk.cta }}</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"></path></svg>
+    </button>
+    <sc-if value="{{ isManual }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 8px 10px 14px;border:1px solid var(--color-divider);font-size:14px;color:var(--muted)">
+        <span style="flex:1">已手動修改稿件，欄位變更不會再自動套用</span>
+        <button onClick="{{ resetManual }}" style="flex:none;min-height:40px;padding:0 10px;border:0;background:transparent;color:var(--color-accent-700);font-size:14px;font-weight:600;cursor:pointer">改回自動成稿</button>
+      </div>
+    </sc-if>
+    <article class="blueprint" onClick="{{ startDocEdit }}" style="position:relative;background:var(--paper);color:var(--paper-ink);padding:26px 20px 22px;box-shadow:var(--shadow-sm);cursor:text">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div style="display:flex;justify-content:space-between;align-items:center;font:600 12px/1 var(--font-cond);letter-spacing:.16em;color:var(--paper-muted);margin-bottom:16px"><span>新聞稿 PRESS RELEASE</span><span>{{ charCount }} 字</span></div>
+      <sc-if value="{{ notEditingDoc }}" hint-placeholder-val="{{ true }}">
+        <h1 style="font-family:var(--font-kai);font-size:22px;line-height:1.5;font-weight:700;margin:0 0 10px;letter-spacing:.02em;display:flex;flex-wrap:wrap;column-gap:.6em"><sc-for list="{{ doc.titleParts }}" as="g" hint-placeholder-count="1"><span style="background:{{ g.bg }};color:{{ g.fg }}">{{ g.t }}</span></sc-for></h1>
+        <div style="font-family:var(--font-kai);font-size:15px;line-height:1.6;color:var(--paper-muted);padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--color-divider);display:flex;flex-wrap:wrap;column-gap:1.2em"><sc-for list="{{ doc.metaParts }}" as="mp" hint-placeholder-count="2"><span>{{ mp.t }}</span></sc-for></div>
+        <sc-for list="{{ doc.paras }}" as="p" hint-placeholder-count="4">
+          <p style="font-family:var(--font-kai);font-size:18px;line-height:1.95;text-indent:2em;margin:0 0 10px;text-align:justify;letter-spacing:.02em"><sc-for list="{{ p.segs }}" as="g" hint-placeholder-count="1"><sc-if value="{{ g.hole }}" hint-placeholder-val="{{ false }}"><span style="background:var(--warn-bg);color:var(--warn);padding:0 2px">{{ g.t }}</span></sc-if><sc-if value="{{ g.plain }}" hint-placeholder-val="{{ true }}"><span>{{ g.t }}</span></sc-if></sc-for></p>
+        </sc-for>
+        <sc-if value="{{ doc.hasContact }}" hint-placeholder-val="{{ false }}"><div style="font-family:var(--font-kai);font-size:15px;color:var(--paper-muted);margin-top:14px;text-align:right">{{ doc.contact }}</div></sc-if>
+        <div style="margin-top:16px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--paper-muted);font-family:var(--font-ui)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>點稿件可直接修改</div>
+      </sc-if>
+      <sc-if value="{{ editingDoc }}" hint-placeholder-val="{{ false }}">
+        <textarea ref="{{ docRef }}" value="{{ docText }}" onInput="{{ onDocInput }}" aria-label="編輯成稿" style="display:block;width:100%;box-sizing:border-box;border:0;outline:1px solid var(--color-accent);outline-offset:6px;background:transparent;color:var(--paper-ink);font-family:var(--font-kai);font-size:18px;line-height:1.9;padding:0;min-height:320px;overflow:hidden"></textarea>
+        <div style="display:flex;gap:8px;margin-top:18px">
+          <button class="btn btn-primary" onClick="{{ endDocEdit }}" style="min-height:46px;padding:0 20px;font-family:var(--font-ui);font-size:16px">完成修改</button>
+        </div>
+      </sc-if>
+    </article>
+    <div style="display:flex;flex-wrap:wrap;gap:4px 16px;font-size:15px">
+      <button onClick="{{ doTxt }}" style="min-height:44px;padding:0;border:0;background:transparent;color:var(--color-accent-700);cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>下載 TXT</button>
+      <button onClick="{{ doLine }}" style="min-height:44px;padding:0;border:0;background:transparent;color:var(--color-accent-700);cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 1 1 21 11.5z"></path></svg>用 LINE 傳送</button>
+    </div>
+    <div style="height:{{ rightPadB }}"></div>
+  </div>
+  <div style="position:{{ actPos }};left:0;right:0;bottom:{{ barBottom }};z-index:25;background:var(--bar);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--color-divider);padding:12px 16px calc(12px + env(safe-area-inset-bottom))">
+    <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px;max-width:640px;margin:0 auto">
+      <button class="btn btn-primary blueprint" onClick="{{ doShare }}" style="min-height:58px;flex-direction:column;gap:3px;font-family:var(--font-ui);font-size:16px;font-weight:700;padding:0 4px" style-active="transform:scale(.96)"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"></path></svg>分享</button>
+      <button class="btn btn-secondary" onClick="{{ doCopy }}" style="min-height:58px;flex-direction:column;gap:3px;font-family:var(--font-ui);font-size:14px;padding:0 2px" style-active="transform:scale(.95)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>複製</button>
+      <button class="btn btn-secondary" onClick="{{ doWord }}" style="min-height:58px;flex-direction:column;gap:3px;font-family:var(--font-ui);font-size:14px;padding:0 2px" style-active="transform:scale(.95)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"></path></svg>Word</button>
+      <button class="btn btn-secondary" onClick="{{ doSaveDraft }}" style="min-height:58px;flex-direction:column;gap:3px;font-family:var(--font-ui);font-size:14px;padding:0 2px" style-active="transform:scale(.95)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>存草稿</button>
+    </div>
+  </div>
+</aside>
+</div>
+
+<sc-if value="{{ sheetMounted }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeSheet }}" style="position:fixed;inset:0;z-index:40;background:var(--scrim);opacity:{{ scrimO }};transition:opacity var(--dur-s) ease-out"></div>
+  <div role="dialog" aria-modal="true" aria-label="{{ sheetTitle }}" style="position:fixed;left:0;right:0;bottom:0;z-index:41;margin:0 auto;max-width:{{ sheetMaxW }};height:{{ sheetH }};max-height:94dvh;display:flex;flex-direction:column;background:var(--color-bg);border-top:1px solid var(--color-divider);box-shadow:var(--shadow-lg);transform:translateY({{ sheetTY }});transition:{{ sheetTr }};padding-bottom:calc({{ kbPx }} + env(safe-area-inset-bottom))">
+    <div onPointerDown="{{ onGrab }}" onPointerMove="{{ onGrabMove }}" onPointerUp="{{ onGrabUp }}" onPointerCancel="{{ onGrabUp }}" style="flex:none;touch-action:none;cursor:grab;padding:8px 8px 6px 18px">
+      <div style="width:40px;height:4px;margin:0 auto 10px;background:var(--color-neutral-400)"></div>
+      <div style="display:flex;align-items:center;gap:8px;min-height:44px">
+        <h3 style="flex:1;font-family:var(--font-ui);font-size:19px;font-weight:700;margin:0">{{ sheetTitle }}</h3>
+        <sc-if value="{{ sheetAction.show }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ sheetAction.onClick }}" onPointerDown="{{ stopEv }}" style="min-height:44px;padding:0 12px;border:0;background:transparent;color:var(--color-accent-700);font-size:15px;font-weight:600;cursor:pointer">{{ sheetAction.label }}</button>
+        </sc-if>
+        <button aria-label="關閉" onClick="{{ closeSheet }}" onPointerDown="{{ stopEv }}" style="width:44px;height:44px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);cursor:pointer" style-active="transform:scale(.9)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+      </div>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:4px 18px 20px">
+
+      <sc-if value="{{ sh.menu }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ menuItems }}" as="m" hint-placeholder-count="5">
+            <button onClick="{{ m.onClick }}" style="display:flex;align-items:center;gap:14px;min-height:60px;padding:6px 4px;border:0;border-bottom:1px solid var(--color-divider);background:transparent;color:{{ m.fg }};text-align:left;cursor:pointer" style-active="background:var(--color-accent-100)">
+              <span style="width:40px;height:40px;flex:none;display:grid;place-items:center;border:1px solid var(--color-divider)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="{{ m.d }}"></path></svg></span>
+              <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:17px;font-weight:600">{{ m.label }}</span><span style="font-size:14px;color:var(--muted)">{{ m.sub }}</span></span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+          </sc-for>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:16px">所有資料只存在這支手機的瀏覽器中，不會上傳任何伺服器。{{ storageNote }}</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sh.preview }}" hint-placeholder-val="{{ false }}">
+        <div class="blueprint" style="position:relative;background:var(--paper);color:var(--paper-ink);padding:22px 18px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="font-family:var(--font-kai);font-size:20px;line-height:1.5;font-weight:700;margin-bottom:8px">{{ doc.title }}</div>
+          <div style="font-family:var(--font-kai);font-size:14px;color:var(--paper-muted);padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--color-divider)">{{ doc.meta }}</div>
+          <sc-for list="{{ doc.paras }}" as="p" hint-placeholder-count="3"><p style="font-family:var(--font-kai);font-size:17px;line-height:1.9;text-indent:2em;margin:0 0 8px;text-align:justify"><sc-for list="{{ p.segs }}" as="g" hint-placeholder-count="1"><sc-if value="{{ g.hole }}" hint-placeholder-val="{{ false }}"><span style="background:var(--warn-bg);color:var(--warn)">{{ g.t }}</span></sc-if><sc-if value="{{ g.plain }}" hint-placeholder-val="{{ true }}"><span>{{ g.t }}</span></sc-if></sc-for></p></sc-for>
+        </div>
+        <div style="font-size:13px;color:var(--muted);text-align:center;margin-top:12px">上拉可全螢幕・下拉關閉</div>
+      </sc-if>
+
+      <sc-if value="{{ sh.checks }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ chk.ok }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 0;color:var(--ok);text-align:center">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3"></path></svg>
+            <div style="font-size:18px;font-weight:700">格式無誤，可以送核發布</div>
+            <div style="font-size:14px;color:var(--muted)">已檢查：臺／台、全形標點、共機用語、口語、臆測語氣、未填欄位、句長、標題字數</div>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ checkItems }}" as="c" hint-placeholder-count="2">
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--color-divider)">
+              <span style="width:28px;height:28px;flex:none;display:grid;place-items:center;background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-bd)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5M12 16.5h.01"></path></svg></span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                <div style="font-size:16px;font-weight:700">{{ c.title }}</div>
+                <div style="font-size:14px;color:var(--muted);line-height:1.5;word-break:break-all">{{ c.detail }}</div>
+              </div>
+              <sc-if value="{{ c.hasAction }}" hint-placeholder-val="{{ true }}">
+                <button class="btn btn-secondary" onClick="{{ c.onAct }}" style="flex:none;min-height:44px;min-width:64px;padding:0 12px;font-family:var(--font-ui);font-size:15px;font-weight:600;color:var(--color-accent-700)" style-active="transform:scale(.95)">{{ c.act }}</button>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ chk.fixN }}" hint-placeholder-val="{{ false }}">
+          <button class="btn btn-primary btn-block blueprint" onClick="{{ fixAll }}" style="min-height:52px;margin-top:16px;font-family:var(--font-ui);font-size:17px;font-weight:700"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>一鍵修正 {{ chk.fixN }} 項</button>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ sh.share }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-family:var(--font-kai);font-size:17px;line-height:1.5;padding:12px 14px;border:1px solid var(--color-divider);background:var(--paper);color:var(--paper-ink)">{{ doc.title }}<div style="font-family:var(--font-ui);font-size:13px;color:var(--paper-muted);margin-top:4px">全文 {{ charCount }} 字</div></div>
+          <button class="btn btn-primary blueprint" onClick="{{ doLine }}" style="min-height:56px;font-family:var(--font-ui);font-size:18px;font-weight:700;justify-content:flex-start;padding:0 18px;gap:12px"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 1 1 21 11.5z"></path></svg>傳送到 LINE</button>
+          <button class="btn btn-secondary" onClick="{{ doCopy }}" style="min-height:54px;font-family:var(--font-ui);font-size:17px;justify-content:flex-start;padding:0 18px;gap:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>複製全文，貼到任何 App</button>
+          <button class="btn btn-secondary" onClick="{{ doWord }}" style="min-height:54px;font-family:var(--font-ui);font-size:17px;justify-content:flex-start;padding:0 18px;gap:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"></path></svg>下載 Word（標楷體）</button>
+          <button class="btn btn-secondary" onClick="{{ doTxt }}" style="min-height:54px;font-family:var(--font-ui);font-size:17px;justify-content:flex-start;padding:0 18px;gap:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>下載 TXT</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sh.compose }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:15px;font-weight:600">類別</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ cmpCats }}" as="o" hint-placeholder-count="5">
+                <button onClick="{{ o.onClick }}" style="min-height:44px;min-width:60px;padding:0 14px;font-size:16px;white-space:nowrap;flex:none;cursor:pointer;border:1px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }}" style-active="transform:scale(.95)">{{ o.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:15px;font-weight:600">語句內容</div>
+            <textarea class="input" rows="4" value="{{ cmp.t }}" onInput="{{ cmpInput }}" placeholder="{{ cmpPh }}" style="font-size:17px;line-height:1.6;padding:12px 14px;min-height:auto"></textarea>
+            <div style="font-size:14px;color:var(--muted)">成稿會自動加上「{{ cmpPreviewVerb }}」，只要寫後半句。</div>
+          </div>
+          <button onClick="{{ cmpToggleSave }}" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0;border:0;background:transparent;color:var(--color-text);font-size:16px;cursor:pointer;text-align:left">
+            <span style="width:22px;height:22px;flex:none;display:grid;place-items:center;border:1.5px solid {{ cmpBox.bd }};background:{{ cmpBox.bg }};color:var(--on-accent)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ cmpBox.o }}"><path d="M20 6 9 17l-5-5"></path></svg></span>同時存入我的語庫，下次也能用
+          </button>
+          <button class="btn btn-primary btn-block blueprint" onClick="{{ cmpAdd }}" style="min-height:54px;font-family:var(--font-ui);font-size:18px;font-weight:700"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>加入成稿</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sh.imp }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="font-size:15px;color:var(--muted);line-height:1.6">貼上一篇過去的新聞報導，自動擷取「期勉、強調、提醒、肯定、感謝」後面的語句，勾選後存入我的語庫（目前 {{ myLibCount }} 句）。</div>
+          <textarea class="input" rows="6" value="{{ imp.text }}" onInput="{{ impInput }}" placeholder="例：鄭司令強調，各級幹部須落實……" style="font-size:16px;line-height:1.6;padding:12px 14px;min-height:auto"></textarea>
+          <button class="btn btn-secondary" onClick="{{ impExtract }}" style="min-height:50px;font-family:var(--font-ui);font-size:17px;font-weight:600">擷取語句</button>
+          <sc-for list="{{ impList }}" as="x" hint-placeholder-count="0">
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid {{ x.bd }};background:{{ x.bg }}">
+              <button aria-label="勾選" onClick="{{ x.onToggle }}" style="width:44px;height:44px;margin:-10px -6px -10px -10px;flex:none;display:grid;place-items:center;border:0;background:transparent;cursor:pointer"><span style="width:22px;height:22px;display:grid;place-items:center;border:1.5px solid {{ x.boxBd }};background:{{ x.boxBg }};color:var(--on-accent)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ x.o }}"><path d="M20 6 9 17l-5-5"></path></svg></span></button>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <span class="tag tag-accent" style="align-self:flex-start;font-size:12px;padding:2px 8px">{{ x.c }}</span>
+                <textarea class="input" rows="2" value="{{ x.t }}" onInput="{{ x.onEdit }}" style="font-size:16px;line-height:1.55;padding:8px 10px;min-height:auto"></textarea>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ impHas }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-primary btn-block blueprint" onClick="{{ impSave }}" style="min-height:54px;font-family:var(--font-ui);font-size:18px;font-weight:700"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>存入我的語庫（{{ impOnN }} 句）</button>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sh.settings }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <section style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:16px;font-weight:700">長官稱謂表</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5">首次出現用「全稱」，之後自動改用「簡稱」。</div>
+            <sc-for list="{{ titleRows }}" as="r" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--color-divider)">
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input class="input" value="{{ r.role }}" onInput="{{ r.onRole }}" aria-label="職稱" style="flex:1;min-height:46px;font-size:16px;font-weight:600">
+                  <button aria-label="刪除" onClick="{{ r.onDel }}" style="width:44px;height:44px;flex:none;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg></button>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px">
+                  <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)">全稱<input class="input" value="{{ r.full }}" onInput="{{ r.onFull }}" style="min-height:46px;font-size:16px"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)">簡稱<input class="input" value="{{ r.short }}" onInput="{{ r.onShort }}" style="min-height:46px;font-size:16px"></label>
+                </div>
+              </div>
+            </sc-for>
+            <button class="btn btn-secondary" onClick="{{ addTitle }}" style="min-height:48px;font-family:var(--font-ui);font-size:16px">＋新增長官</button>
+          </section>
+          <section style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:16px;font-weight:700">日期括號</div>
+            <div style="font-size:15px;line-height:1.6;color:var(--muted);margin-top:-4px;text-wrap:pretty">成稿「今（10）日」裡括號的寫法。官網新聞稿用全形；若送稿系統或報社要求半形，改這裡即可，全文一次套用。</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--color-divider)">
+              <sc-for list="{{ brOpts }}" as="o" hint-placeholder-count="2">
+                <button onClick="{{ o.onClick }}" style="min-height:48px;border:0;background:{{ o.bg }};color:{{ o.fg }};font-size:16px;cursor:pointer;font-family:var(--font-kai)">{{ o.label }}</button>
+              </sc-for>
+            </div>
+          </section>
+          <section style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:16px;font-weight:700">新聞聯絡人</div>
+            <input class="input" value="{{ contact }}" onInput="{{ setContact }}" placeholder="例：○○○中校　02-2345-6789" style="min-height:50px;font-size:16px;padding:12px 14px">
+            <div style="font-size:14px;color:var(--muted)">填寫後會附在每篇成稿末尾。</div>
+          </section>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sh.drafts }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ noDrafts }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:28px 0;text-align:center;font-size:15px;color:var(--muted);line-height:1.6">尚無草稿。<br>在成稿頁按「存草稿」即可保存。</div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ draftRows }}" as="d" hint-placeholder-count="0">
+            <div style="display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--color-divider)">
+              <button onClick="{{ d.onLoad }}" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;min-height:64px;padding:10px 0;border:0;background:transparent;text-align:left;color:var(--color-text);cursor:pointer">
+                <span style="font-family:var(--font-kai);font-size:17px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">{{ d.title }}</span>
+                <span style="font-size:13px;color:var(--muted)">{{ d.sub }}</span>
+              </button>
+              <button aria-label="刪除草稿" onClick="{{ d.onDel }}" style="width:44px;height:44px;flex:none;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg></button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sh.examples }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="font-size:14px;color:var(--muted)">長官活動｜司令・慰問・春節｜空軍第二雷達中隊</div>
+          <div class="blueprint" style="position:relative;background:var(--paper);color:var(--paper-ink);padding:20px 18px">
+            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+            <div style="font-family:var(--font-kai);font-size:19px;line-height:1.5;font-weight:700;margin-bottom:8px">{{ ex.title }}</div>
+            <div style="font-family:var(--font-kai);font-size:14px;color:var(--paper-muted);padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--color-divider)">{{ ex.meta }}</div>
+            <sc-for list="{{ ex.paras }}" as="p" hint-placeholder-count="3"><p style="font-family:var(--font-kai);font-size:16px;line-height:1.85;text-indent:2em;margin:0 0 6px;text-align:justify">{{ p }}</p></sc-for>
+          </div>
+          <button class="btn btn-primary btn-block blueprint" onClick="{{ loadExample }}" style="min-height:54px;font-family:var(--font-ui);font-size:17px;font-weight:700"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>載入此範例開始編輯</button>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</sc-if>
+
+<div aria-live="polite" style="position:fixed;left:16px;right:16px;bottom:{{ toastBottom }};z-index:60;display:flex;justify-content:center;pointer-events:none">
+  <sc-if value="{{ toast.show }}" hint-placeholder-val="{{ false }}">
+    <div class="elev-lg" style="pointer-events:auto;display:flex;align-items:center;gap:12px;max-width:440px;width:100%;min-height:52px;padding:6px 6px 6px 16px;background:var(--navy);color:#fff;border:1px solid rgba(255,255,255,.12);opacity:{{ toast.o }};transform:translateY({{ toast.y }});transition:opacity 200ms ease-out,transform 260ms var(--spring)">
+      <sc-if value="{{ toast.ok }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7CD9A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+      <span style="flex:1;font-size:15px;line-height:1.4">{{ toast.msg }}</span>
+      <sc-if value="{{ toast.hasUndo }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toast.onUndo }}" style="flex:none;min-height:44px;padding:0 14px;border:0;background:transparent;color:#A9C6F7;font-size:15px;font-weight:700;cursor:pointer">復原</button>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+
+<sc-if value="{{ welcome }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-label="歡迎" style="position:fixed;inset:0;z-index:80;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));opacity:{{ welO }};transition:opacity var(--dur-s) ease-out;overflow:auto">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.5);font-family:var(--font-kai);font-size:19px">稿</div>
+      <div style="font-size:14px;letter-spacing:.06em;color:rgba(255,255,255,.82)">空軍司令部・公共事務</div>
+    </div>
+    <div style="flex:1;min-height:24px"></div>
+    <div style="max-width:520px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:20px">
+      <h1 style="font-family:var(--font-ui);font-weight:700;font-size:34px;line-height:1.25;margin:0;letter-spacing:.02em">空軍新聞稿生成器</h1>
+      <div class="blueprint" style="position:relative;border-color:rgba(255,255,255,.28);padding:16px 16px 6px;color:#fff">
+        <i class="corner tl" style="color:rgba(255,255,255,.6)"></i><i class="corner tr" style="color:rgba(255,255,255,.6)"></i><i class="corner bl" style="color:rgba(255,255,255,.6)"></i><i class="corner br" style="color:rgba(255,255,255,.6)"></i>
+        <div style="font-size:14px;font-weight:700;letter-spacing:.08em;color:#A9C6F7;margin-bottom:6px">使用說明</div>
+        <ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column">
+          <li style="display:grid;grid-template-columns:28px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.14);font-size:16px;line-height:1.5"><span style="font:600 18px/1.4 var(--font-cond);color:#A9C6F7">01</span><span><b>選稿型</b>　長官活動、典禮、澄清等 7 種</span></li>
+          <li style="display:grid;grid-template-columns:28px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.14);font-size:16px;line-height:1.5"><span style="font:600 18px/1.4 var(--font-cond);color:#A9C6F7">02</span><span><b>填基本資料</b>　誰、何時、做什麼、去哪</span></li>
+          <li style="display:grid;grid-template-columns:28px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.14);font-size:16px;line-height:1.5"><span style="font:600 18px/1.4 var(--font-cond);color:#A9C6F7">03</span><span><b>挑語句</b>　已依場合推薦好，點一下增減</span></li>
+          <li style="display:grid;grid-template-columns:28px 1fr;gap:8px;padding:10px 0;font-size:16px;line-height:1.5"><span style="font:600 18px/1.4 var(--font-cond);color:#A9C6F7">04</span><span><b>分享成稿</b>　檢查格式後傳 LINE、複製或下載 Word</span></li>
+        </ol>
+      </div>
+      <p style="font-size:15px;line-height:1.6;color:rgba(255,255,255,.78);margin:0">免登入；資料只存在這支手機，不會上傳。</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+        <button onClick="{{ startDemo }}" class="blueprint" style="position:relative;min-height:58px;border:1px solid #fff;background:#fff;color:#12305C;font-size:19px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px" style-active="transform:scale(.97)"><i class="corner tl" style="color:#fff"></i><i class="corner tr" style="color:#fff"></i><i class="corner bl" style="color:#fff"></i><i class="corner br" style="color:#fff"></i>✦ 用範例試寫一篇</button>
+        <button onClick="{{ skipWelcome }}" style="min-height:50px;border:0;background:transparent;color:rgba(255,255,255,.86);font-size:16px;cursor:pointer;text-decoration:underline;text-underline-offset:4px">跳過，直接開始</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;'auto'|'light'|'dark'&quot;,&quot;section&quot;:&quot;外觀&quot;}}">
+class Component extends DCLogic {
+  state = { ready: false };
+  componentDidMount() {
+    this.q = new URLSearchParams(location.search);
+    const go = () => (window.PRE ? this.init() : setTimeout(go, 30));
+    go();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+    if (window.visualViewport) { visualViewport.removeEventListener('resize', this.onVV); visualViewport.removeEventListener('scroll', this.onVV); }
+  }
+  init() {
+    const E = window.PRE, q = this.q;
+    this.sandbox = q.has('sandbox');
+    this.store = E.makeStore('afpr1:', this.sandbox);
+    let st = Object.assign({ step: 1, type: 'leader', form: E.blankForm(), sel: [], manual: null, moreOpen: false, recOffset: 0 }, this.store.get('draft') || {});
+    let welcome = !this.store.get('seen');
+    if (q.has('welcome')) welcome = q.get('welcome') === '1';
+    if (q.has('demo')) {
+      st = Object.assign(st, E.demo());
+      if (q.get('demo') === 'full') { st.form = Object.assign({}, st.form, E.smartFill(st.type, st.form)); st.sel = E.recommend(st.type, st.form, [], 0); }
+    }
+    if (q.has('type')) st.type = q.get('type');
+    if (q.has('step')) st.step = +q.get('step');
+    if (q.has('more')) st.moreOpen = true;
+    if (q.has('target')) st.form = Object.assign({}, st.form, { target: q.get('target') });
+    const fw = q.get('layout') === 'desk' ? 1280 : 0;
+    this.onResize = () => this.setState({ w: fw || window.innerWidth });
+    this.onVV = () => { const v = window.visualViewport; if (v) this.setState({ kb: Math.max(0, Math.round(window.innerHeight - v.height - v.offsetTop)) }); };
+    window.addEventListener('resize', this.onResize);
+    if (window.visualViewport) { visualViewport.addEventListener('resize', this.onVV); visualViewport.addEventListener('scroll', this.onVV); }
+    this.setState(Object.assign(st, {
+      ready: true, settings: (() => { const v = this.store.get('settings'); if (!v || !v.titles || v.titles.some(t => /○○○|^鄭司令上將$/.test(t.full || ''))) return Object.assign(E.defaultSettings(), v ? { bracket: v.bracket, contact: v.contact } : {}); return v; })(), myLib: this.store.get('myLib') || [], drafts: this.store.get('drafts') || [],
+      welcome, welO: 1, w: fw || window.innerWidth, kb: 0, touched: {}, sheet: null, sheetOn: false, drag: 0, dragging: false, full: false,
+      tour: q.has('tour') ? +q.get('tour') : 0, toast: null, editingId: null, editingDoc: false, enter: 0, savedAt: 0, storageOk: this.store.ok,
+      imp: { text: '', list: [] }, cmp: { c: '強調', t: '', save: true }
+    }));
+    this.applyTheme();
+    if (q.get('sheet')) setTimeout(() => this.openSheet(q.get('sheet')), 80);
+    if (q.get('toast')) setTimeout(() => this.toast(q.get('toast'), q.has('undo') ? () => {} : null, 'ok', 60000), 120);
+    if (q.has('editfirst')) setTimeout(() => { const s = this.state.sel[0]; if (s) this.setState({ editingId: s.id }); }, 60);
+    if (q.has('editdoc')) setTimeout(() => this.startDocEdit(), 80);
+    if (!this.sandbox && 'serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  applyTheme() {
+    const t = (this.q && this.q.get('mode')) || this.props.theme;
+    [document.documentElement, document.body].forEach(el => { if (t && t !== 'auto') el.dataset.theme = t; else delete el.dataset.theme; });
+  }
+  componentDidUpdate(pp, ps) {
+    if (pp.theme !== this.props.theme) this.applyTheme();
+    const s = this.state;
+    if (!s.ready || !ps.ready) return;
+    if (ps.form !== s.form || ps.sel !== s.sel || ps.manual !== s.manual || ps.step !== s.step || ps.type !== s.type || ps.moreOpen !== s.moreOpen) {
+      clearTimeout(this.pt);
+      this.pt = setTimeout(() => {
+        const c = this.state;
+        this.store.set('draft', { step: c.step, type: c.type, form: c.form, sel: c.sel, manual: c.manual, moreOpen: c.moreOpen, recOffset: c.recOffset });
+        this.setState({ storageOk: this.store.ok, savedAt: Date.now() });
+      }, 300);
+    }
+  }
+  E() { return window.PRE; }
+  isDesk() { return this.state.w >= 1024; }
+  setField(k, v) { this.setState(s => ({ form: Object.assign({}, s.form, { [k]: v }) })); }
+  touch(k) { this.setState(s => ({ touched: Object.assign({}, s.touched, { [k]: 1 }) })); }
+  buzz(n) { try { navigator.vibrate && navigator.vibrate(n || 8); } catch (e) {} }
+
+  goStep(n) {
+    if (this.isDesk() && n > 3) n = 3;
+    const dir = n >= this.state.step ? 1 : -1;
+    this.setState(s => ({ step: n, enter: dir, editingId: null, tour: s.tour ? Math.max(s.tour, n) : 0 }));
+    setTimeout(() => this.setState({ enter: 0 }), 24);
+    window.scrollTo(0, 0);
+  }
+  pickType(k) {
+    this.buzz();
+    this.setState(s => ({ type: k, manual: s.type === k ? s.manual : null }));
+    clearTimeout(this.pkT); this.pkT = setTimeout(() => this.goStep(2), 160);
+  }
+  smartNext() {
+    const s = this.state, E = this.E();
+    const patch = E.smartFill(s.type, s.form), n = Object.keys(patch).length;
+    const form = Object.assign({}, s.form, patch), ph = !!E.PHRASES[s.type];
+    let sel = s.sel, k = 0;
+    if (ph && !sel.length) { sel = E.recommend(s.type, form, s.myLib, 0); k = sel.length; }
+    this.setState({ form, sel });
+    this.toast(n || k ? '已帶入 ' + n + ' 個欄位' + (k ? '、推薦 ' + k + ' 句' : '') + '（不覆蓋已填內容）' : '欄位皆已填寫，未覆蓋你的內容', null, 'ok');
+    this.goStep(ph ? 3 : 4);
+  }
+
+  toast(msg, undo, kind, ms) {
+    const id = Date.now();
+    clearTimeout(this.tT); clearTimeout(this.tT2);
+    this.setState({ toast: { msg, undo, kind, id, on: false } });
+    setTimeout(() => this.setState(s => (s.toast && s.toast.id === id ? { toast: Object.assign({}, s.toast, { on: true }) } : null)), 24);
+    this.tT = setTimeout(() => {
+      this.setState(s => (s.toast && s.toast.id === id ? { toast: Object.assign({}, s.toast, { on: false }) } : null));
+      this.tT2 = setTimeout(() => this.setState(s => (s.toast && s.toast.id === id ? { toast: null } : null)), 260);
+    }, ms || (undo ? 5000 : 2600));
+  }
+  snap() { const s = this.state; return { form: s.form, sel: s.sel, manual: s.manual, step: s.step, type: s.type, drafts: s.drafts, myLib: s.myLib }; }
+  undoTo(sn) { return () => { this.setState(Object.assign({ editingDoc: false, editingId: null }, sn)); this.store.set('drafts', sn.drafts); this.store.set('myLib', sn.myLib); this.toast('已復原', null, 'ok'); }; }
+
+  openSheet(name) {
+    this.setState({ sheet: name, sheetOn: false, drag: 0, full: false, dragging: false });
+    setTimeout(() => this.setState({ sheetOn: true }), 24);
+  }
+  closeSheet() {
+    this.setState({ sheetOn: false, drag: 0, dragging: false });
+    clearTimeout(this.shT); this.shT = setTimeout(() => { if (!this.state.sheetOn) this.setState({ sheet: null }); }, 300);
+  }
+  grab(e) { this.dg = { y: e.clientY, ly: e.clientY, lt: performance.now(), v: 0 }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this.setState({ dragging: true }); }
+  grabMove(e) {
+    if (!this.dg) return;
+    const now = performance.now(), dt = Math.max(1, now - this.dg.lt);
+    this.dg.v = (e.clientY - this.dg.ly) / dt; this.dg.ly = e.clientY; this.dg.lt = now;
+    let dy = e.clientY - this.dg.y;
+    const canGrow = this.state.sheet === 'preview' && !this.state.full;
+    if (dy < 0 && !canGrow) dy = dy / 5;
+    this.setState({ drag: dy });
+  }
+  grabUp() {
+    if (!this.dg) return;
+    const dy = this.state.drag, v = this.dg.v; this.dg = null;
+    if (dy > 110 || v > 0.6) { if (this.state.sheet === 'preview' && this.state.full && dy < 260 && v < 1.2) { this.setState({ full: false, drag: 0, dragging: false }); return; } this.closeSheet(); return; }
+    if (this.state.sheet === 'preview' && (dy < -50 || v < -0.5)) { this.setState({ full: true, drag: 0, dragging: false }); return; }
+    this.setState({ drag: 0, dragging: false });
+  }
+
+  unit() { return this.E().unitOf(this.state.type, this.state.form); }
+  disp(x) { return x.edit != null ? x.edit : this.E().sub(x.t, this.unit()); }
+  togglePhrase(p) {
+    this.buzz();
+    this.setState(s => { const on = s.sel.some(x => x.id === p.id); return { sel: on ? s.sel.filter(x => x.id !== p.id) : s.sel.concat([{ id: p.id, c: p.c, t: p.t, star: p.star, mine: p.mine }]) }; });
+  }
+  startEditPhrase(p) {
+    this.buzz(15);
+    this.setState(s => ({ editingId: p.id, sel: s.sel.some(x => x.id === p.id) ? s.sel : s.sel.concat([{ id: p.id, c: p.c, t: p.t, star: p.star, mine: p.mine }]) }));
+  }
+  editText(id, v) { this.setState(s => ({ sel: s.sel.map(x => (x.id === id ? Object.assign({}, x, { edit: v }) : x)) })); }
+  saveToMy(id) {
+    const s = this.state, x = s.sel.find(y => y.id === id); if (!x) return;
+    const u = (this.unit() || '').trim(); let t = this.disp(x);
+    if (u) t = t.split(u).join('{單位}');
+    if (s.myLib.some(m => m.t === t)) { this.toast('我的語庫已有這句'); return; }
+    const myLib = s.myLib.concat([{ id: 'm' + Date.now(), c: x.c, t }]);
+    this.setState({ myLib, editingId: null }); this.store.set('myLib', myLib);
+    this.toast('已存入我的語庫（共 ' + myLib.length + ' 句）', null, 'ok');
+  }
+  removeSel(id) { const sn = this.snap(); this.setState(s => ({ sel: s.sel.filter(x => x.id !== id), editingId: null })); this.toast('已移除語句', this.undoTo(sn)); }
+  recommendNow(offset) {
+    const s = this.state, E = this.E(), sn = this.snap();
+    const rec = E.recommend(s.type, s.form, s.myLib, offset);
+    const custom = s.sel.filter(x => x.custom);
+    this.setState({ sel: rec.concat(custom), recOffset: offset, editingId: null });
+    this.toast((offset ? '已換一組，' : '已推薦 ') + rec.length + ' 句', this.undoTo(sn));
+  }
+
+  doc() { const s = this.state, E = this.E(); return s.manual != null ? E.parseText(s.manual) : E.compose(s.type, s.form, s.sel, s.settings); }
+  autoText() { const s = this.state, E = this.E(); return E.toText(E.compose(s.type, s.form, s.sel, s.settings)); }
+  startDocEdit() {
+    if (this.state.editingDoc) return;
+    const t = this.state.manual != null ? this.state.manual : this.autoText();
+    this.setState({ editingDoc: true, manual: t });
+    setTimeout(() => { const el = this.docEl; if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; try { el.focus({ preventScroll: true }); } catch (e) {} } }, 30);
+  }
+  endDocEdit(e) {
+    if (e) e.stopPropagation();
+    const m = this.state.manual;
+    this.setState({ editingDoc: false, manual: m != null && m === this.autoText() ? null : m });
+    this.toast('已保存修改', null, 'ok');
+  }
+  resetManual() { const sn = this.snap(); this.setState({ manual: null, editingDoc: false }); this.toast('已改回自動成稿', this.undoTo(sn)); }
+  applyFix(ids) {
+    const E = this.E(), s = this.state, fns = ids.map(E.fixer).filter(Boolean);
+    if (!fns.length) return;
+    const f = str => fns.reduce((a, fn) => fn(a), str), sn = this.snap(), form = {};
+    Object.keys(s.form).forEach(k => { form[k] = typeof s.form[k] === 'string' ? f(s.form[k]) : s.form[k]; });
+    const sel = s.sel.map(x => Object.assign({}, x, { t: f(x.t), edit: x.edit != null ? f(x.edit) : x.edit }));
+    this.setState({ form, sel, manual: s.manual != null ? f(s.manual) : null });
+    this.toast('已修正 ' + fns.length + ' 項', this.undoTo(sn));
+  }
+
+  text() { return this.E().toText(this.doc()); }
+  async copy() {
+    const t = this.text(); let ok = false;
+    try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {
+      const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;opacity:0';
+      document.body.appendChild(ta); ta.select(); try { ok = document.execCommand('copy'); } catch (e2) {} ta.remove();
+    }
+    this.toast(ok ? '已複製全文（' + t.length + ' 字），可直接貼上' : '無法自動複製，請點稿件後全選複製', null, ok ? 'ok' : '');
+    if (ok) this.finishTour();
+  }
+  share() {
+    const t = this.text(), d = this.doc();
+    if (navigator.share) {
+      navigator.share({ title: d.title, text: t }).then(() => { this.toast('已送出分享', null, 'ok'); this.finishTour(); }).catch(e => { if (!e || e.name !== 'AbortError') this.openSheet('share'); });
+    } else this.openSheet('share');
+  }
+  line() { window.open('https://line.me/R/share?text=' + encodeURIComponent(this.text()), '_blank'); this.toast('已開啟 LINE 分享', null, 'ok'); this.finishTour(); }
+  download(name, data, mime) {
+    try {
+      const b = new Blob([data], { type: mime }), a = document.createElement('a');
+      a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800); return true;
+    } catch (e) { return false; }
+  }
+  fname(ext) { return ((this.doc().title || '').replace(/[\\/:*?"<>|\s]+/g, '').slice(0, 30) || '新聞稿') + '.' + ext; }
+  word() { const ok = this.download(this.fname('doc'), this.E().wordHtml(this.doc()), 'application/msword'); this.toast(ok ? '已下載 Word：' + this.fname('doc') : '此瀏覽器無法下載，請改用複製', null, ok ? 'ok' : ''); }
+  txt() { const ok = this.download(this.fname('txt'), '\ufeff' + this.text(), 'text/plain;charset=utf-8'); this.toast(ok ? '已下載 TXT' : '此瀏覽器無法下載，請改用複製', null, ok ? 'ok' : ''); }
+  saveDraft() {
+    const s = this.state, d = this.doc();
+    const item = { id: 'd' + Date.now(), at: Date.now(), title: d.title, type: s.type, form: s.form, sel: s.sel, manual: s.manual };
+    const drafts = [item].concat(s.drafts.filter(x => x.title !== d.title || x.type !== s.type)).slice(0, 30);
+    this.setState({ drafts }); this.store.set('drafts', drafts);
+    this.toast('已存入草稿（共 ' + drafts.length + ' 篇）', null, 'ok');
+  }
+  finishTour() { if (this.state.tour) this.setState({ tour: 0 }); }
+
+  startDemo() {
+    const E = this.E(), d = E.demo(), sn = this.snap();
+    this.store.set('seen', 1);
+    this.setState(Object.assign(d, { welO: 0, tour: 1, moreOpen: false, touched: {} }));
+    setTimeout(() => this.setState({ welcome: false }), 260);
+    this.goStep(1);
+    if (sn.form.target && sn.form.target !== d.form.target) this.toast('已載入範例', this.undoTo(sn));
+  }
+  skipWelcome() { this.store.set('seen', 1); this.setState({ welO: 0 }); setTimeout(() => this.setState({ welcome: false }), 260); }
+
+  saveSettings(st) { this.setState({ settings: st }); this.store.set('settings', st); }
+  setTitle(i, k, v) { const st = this.state.settings, titles = st.titles.map((t, j) => (j === i ? Object.assign({}, t, { [k]: v }) : t)); this.saveSettings(Object.assign({}, st, { titles })); }
+
+  renderVals() {
+    const s = this.state, E = window.PRE;
+    if (!s.ready || !E) return { ready: false };
+    const desk = s.w >= 1024, step = desk ? Math.min(s.step, 3) : s.step;
+    const T = E.TYPES.find(t => t.k === s.type) || E.TYPES[0];
+    const ph = !!E.PHRASES[s.type];
+    const doc = this.doc();
+    const seg = t => (t || '').split(/(○+)/).filter(Boolean).map(x => { const h = /^○+$/.test(x); return { t: x, hole: h, plain: !h }; });
+    const fullText = E.toText(doc);
+    const checks = E.checks(doc, s.settings);
+    const who = (s.settings.titles || []).find(t => t.role === s.form.person);
+    const nameHole = who && /○/.test(who.full + who.short);
+    const fixN = checks.filter(c => c.fixable).length;
+    const tourTexts = { 1: '已選好「長官活動」，點卡片或按下方「下一步」', 2: '範例已填好：司令・慰問・春節・空軍第二雷達中隊。按下方「✦ 智慧帶入並下一步」', 3: '已推薦 ' + s.sel.length + ' 句，點一下可增減，再按「預覽成稿」', 4: '成稿完成！按下方「分享」，用 LINE 傳給自己' };
+
+    const steps = [[1, '稿型'], [2, '基本資料'], [3, '挑選語句'], [4, '成稿']].filter(x => !desk || x[0] < 4).map(([n, label]) => {
+      const on = step === n, done = n < step;
+      return { label, mark: done ? '✓' : String(n), aria: on ? 'step' : 'false', weight: on ? 700 : 500,
+        numBg: on ? 'var(--color-accent)' : done ? 'var(--color-accent-200)' : 'transparent', numFg: on ? 'var(--on-accent)' : done ? 'var(--color-accent-800)' : 'var(--muted)',
+        bd: on || done ? 'var(--color-accent)' : 'var(--color-divider)', labelFg: on ? 'var(--color-text)' : done ? 'var(--color-accent-700)' : 'var(--muted)',
+        line: on ? 'var(--color-accent)' : done ? 'var(--color-accent-300)' : 'var(--color-divider)', onClick: () => this.goStep(n) };
+    });
+
+    const types = E.TYPES.map(t => { const on = t.k === s.type; return Object.assign({}, t, { on, off: !on, popular: !!t.popular,
+      bg: on ? 'var(--color-accent-100)' : 'transparent', bd: on ? 'var(--color-accent)' : 'var(--color-divider)',
+      iconBg: on ? 'var(--color-accent)' : 'transparent', iconFg: on ? 'var(--on-accent)' : 'var(--color-accent-700)', iconBd: on ? 'var(--color-accent)' : 'var(--color-divider)',
+      onClick: () => this.pickType(t.k) }); });
+    types.forEach(t => { if (t.on) t.iconFg2 = 'var(--color-accent)'; });
+    types.forEach(t => { t.iconFg = t.on ? 'var(--on-accent)' : 'var(--color-accent-700)'; });
+
+    const sch = E.SCHEMA[s.type], lbl = sch.labels || {};
+    const autoTitle = E.compose(s.type, Object.assign({}, s.form, { title: '' }), s.sel, s.settings).title;
+    const mk = k => {
+      const d = E.F[k], v = s.form[k], multi = d.kind === 'multi';
+      const it = { key: k, isField: true, isToggle: false, label: lbl[k] || d.label, ph: k === 'title' ? '自動：' + autoTitle : d.ph || '', value: v == null ? '' : v, rows: d.big ? 7 : 3,
+        isChips: d.kind === 'chips' || multi, isText: d.kind === 'text', isArea: d.kind === 'area', isDate: d.kind === 'date', isNum: d.kind === 'num',
+        onInput: e => this.setField(k, e.target.value), onBlur: () => this.touch(k), onFocus: this.onFieldFocus, onKeyDown: this.onFieldKey };
+      if (it.isChips) {
+        const opts = d.src === 'titles' ? s.settings.titles.map(t => t.role).filter(Boolean) : d.opts;
+        it.opts = opts.map(o => { const on = multi ? (v || []).includes(o) : v === o;
+          return { label: o, on, w: on ? 700 : 400, bg: on ? 'var(--color-accent)' : 'var(--color-surface)', fg: on ? 'var(--on-accent)' : 'var(--color-text)', bd: on ? 'var(--color-accent)' : 'var(--color-divider)',
+            onClick: () => { this.buzz(); this.setField(k, multi ? (on ? (v || []).filter(x => x !== o) : (v || []).concat([o])) : o); } }; });
+      }
+      const empty = !String(v == null ? '' : v).trim();
+      it.err = d.req && s.touched[k] && empty ? '尚未填寫，成稿會以「○○」標示' : '';
+      it.hasErr = !!it.err; it.bd = it.hasErr ? 'var(--warn)' : 'var(--color-divider)';
+      if (d.unit) { const u = E.detectUnit(v); it.hint = u ? '已辨識單位類型：' + u.name : !empty ? '未辨識單位類型，將推薦通用語句' : ''; it.hintFg = u ? 'var(--ok)' : 'var(--muted)'; }
+      if (it.isDate) {
+        it.roc = v ? E.roc(v) + (k === 'date' && (s.type === 'leader' || s.type === 'ceremony') ? '・成稿寫作「' + ({ '今日': '今（日）', '昨日': '昨（日）', '日前': '日前', '預發稿': '今（日）' }[E.dayLabel(v, s.form.pubDate)] || '') + '」' : '') : (k === 'pubDate' ? '未設定，預設今天 ' + E.roc(E.today()) : '');
+        it.setToday = () => this.setField(k, E.today());
+        it.setYest = () => this.setField(k, E.iso(new Date(Date.now() - 864e5)));
+      }
+      it.hasHint = !!it.hint;
+      return it;
+    };
+    const fields = sch.main.map(mk);
+    fields.push({ key: '__more', isToggle: true, isField: false, label: s.moreOpen ? '收合更多細節' : '更多細節', sub: sch.more.map(k => lbl[k] || E.F[k].label).join('、'), rot: s.moreOpen ? 'rotate(180deg)' : 'none',
+      onClick: () => this.setState(x => ({ moreOpen: !x.moreOpen })) });
+    if (s.moreOpen) sch.more.forEach(k => fields.push(mk(k)));
+
+    const selMap = {}; s.sel.forEach(x => { selMap[x.id] = x; });
+    const unit = E.unitOf(s.type, s.form);
+    let gs = E.candidates(s.type, s.form, s.myLib).map(g => ({ cat: g.cat, items: g.items.slice() }));
+    const inG = {}; gs.forEach(g => g.items.forEach(p => { inG[p.id] = 1; }));
+    s.sel.forEach(x => { if (inG[x.id]) return; let g = gs.find(y => y.cat === x.c); if (!g) { g = { cat: x.c, items: [] }; gs.push(g); } g.items.unshift(x); });
+    gs.sort((a, b) => E.CATS.indexOf(a.cat) - E.CATS.indexOf(b.cat));
+    const chip = p => {
+      const sx = selMap[p.id], on = !!sx, editing = s.editingId === p.id;
+      return { id: p.id, on, editing, notEditing: !editing, star: !!p.star, mine: !!p.mine, text: on ? this.disp(sx) : E.sub(p.t, unit),
+        bd: on || editing ? 'var(--color-accent)' : 'var(--color-divider)', bg: on ? 'var(--color-accent-100)' : 'var(--color-surface)',
+        boxBg: on ? 'var(--color-accent)' : 'transparent', boxBd: on ? 'var(--color-accent)' : 'var(--color-neutral-400)', ckS: on ? 'scale(1)' : 'scale(.3)', ckO: on ? 1 : 0,
+        onClick: () => { if (this.lpFired) { this.lpFired = false; return; } if (s.editingId === p.id) return; this.togglePhrase(p); },
+        onDown: e => { this.lpFired = false; this.lpXY = [e.clientX, e.clientY]; clearTimeout(this.lpT); this.lpT = setTimeout(() => { this.lpFired = true; this.startEditPhrase(p); }, 450); },
+        onMove: e => { if (this.lpXY && Math.hypot(e.clientX - this.lpXY[0], e.clientY - this.lpXY[1]) > 8) clearTimeout(this.lpT); },
+        onUp: () => clearTimeout(this.lpT), onCtx: e => e.preventDefault(),
+        onKey: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.togglePhrase(p); } },
+        onEdit: e => { e.stopPropagation(); this.startEditPhrase(p); }, stop: e => e.stopPropagation(),
+        onText: e => this.editText(p.id, e.target.value), onDone: e => { e.stopPropagation(); this.setState({ editingId: null }); },
+        onSaveMy: e => { e.stopPropagation(); this.saveToMy(p.id); }, onRemove: e => { e.stopPropagation(); this.removeSel(p.id); } };
+    };
+    const groups = gs.map(g => { const c = g.items.filter(p => selMap[p.id]).length;
+      return { cat: g.cat, countLabel: c ? '已選 ' + c : g.items.length + ' 句', countFg: c ? 'var(--color-accent-700)' : 'var(--muted)', items: g.items.map(chip) }; });
+    const u = E.detectUnit(unit), oc = s.form.occ && s.form.occ !== '一般' ? s.form.occ : '';
+    const detTags = ph ? [{ t: u ? u.name : '通用單位' }].concat(oc && s.type !== 'clarify' && s.type !== 'policy' && s.type !== 'hq' ? [{ t: oc }] : []).concat(s.type === 'leader' ? [{ t: s.form.action }] : s.type === 'ceremony' ? [{ t: s.form.kind }] : [{ t: T.name }]) : [];
+
+    const checkItems = checks.map(c => {
+      const go = c.id === 'hole' && nameHole ? 'settings' : c.go;
+      return { title: c.title, detail: c.id === 'hole' && nameHole ? '「' + who.role + '」的姓名尚未設定，請至設定填寫；或回基本資料補齊' : c.detail,
+        hasAction: c.fixable || !!go, act: c.fixable ? '修正' : go === 'settings' ? '設定' : '前往',
+        onAct: () => { if (c.fixable) this.applyFix([c.id]); else if (go === 'settings') this.openSheet('settings'); else { this.closeSheet(); this.setState({ moreOpen: c.id === 'tlen' ? true : this.state.moreOpen }); this.goStep(2); } } };
+    });
+    const ok = !checks.length;
+    const chk = { ok, warn: !ok, fixN, label: ok ? '格式無誤' : checks.length + ' 項建議', cta: ok ? '查看檢查項目' : fixN ? '可一鍵修正' : '查看',
+      bg: ok ? 'var(--ok-bg)' : 'var(--warn-bg)', fg: ok ? 'var(--ok)' : 'var(--warn)', bd: ok ? 'var(--ok-bd)' : 'var(--warn-bd)' };
+
+    const sheetMounted = !!s.sheet;
+    const sheetTitles = { menu: '選單', preview: '目前成稿', checks: '用語與格式檢查', share: '分享成稿', compose: '自己寫一句', imp: '匯入新聞稿學語句', settings: '設定', drafts: '草稿', examples: '範例參考' };
+    const sh = {}; Object.keys(sheetTitles).forEach(k => { sh[k] = s.sheet === k; });
+    let sheetAction = { show: false };
+    if (s.sheet === 'preview') sheetAction = { show: true, label: desk ? '' : '前往成稿', onClick: () => { this.closeSheet(); this.goStep(4); } };
+    if (s.sheet === 'preview' && desk) sheetAction = { show: false };
+    const reduce = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sheetTr = s.dragging || reduce ? 'none' : s.sheetOn ? 'transform 320ms var(--spring), height 280ms var(--ease)' : 'transform 240ms cubic-bezier(.4,0,1,1)';
+    const sheetH = s.sheet === 'preview' ? 'calc(' + (s.full ? 94 : 62) + 'dvh + ' + Math.max(0, -s.drag) + 'px)' : 'auto';
+
+    const ago = ms => { const d = new Date(ms); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+    const menuItems = [
+      { label: '匯入新聞稿學語句', sub: '貼上報導，擷取長官語句', d: 'M12 3v12M7 10l5 5 5-5M5 21h14', onClick: () => this.openSheet('imp') },
+      { label: '草稿', sub: s.drafts.length ? '已存 ' + s.drafts.length + ' 篇' : '尚無草稿', d: 'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z', onClick: () => this.openSheet('drafts') },
+      { label: '範例參考', sub: '司令春節慰問雷達中隊', d: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z', onClick: () => this.openSheet('examples') },
+      { label: '設定', sub: '長官稱謂、日期括號、聯絡人', d: 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6', onClick: () => this.openSheet('settings') },
+      { label: '重新觀看歡迎畫面', sub: '再試寫一次範例', d: 'M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5', onClick: () => { this.closeSheet(); this.setState({ welcome: true, welO: 1 }); } },
+      { label: '清空本篇', sub: '可復原', d: 'M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6', onClick: () => { const sn = this.snap(); this.closeSheet(); this.setState({ form: E.blankForm(), sel: [], manual: null, type: 'leader', touched: {}, editingDoc: false }); this.goStep(1); this.toast('已清空本篇', this.undoTo(sn)); } }
+    ].map(m => Object.assign({ fg: m.label === '清空本篇' ? 'var(--warn)' : 'var(--color-text)' }, m));
+
+    const ex = (() => { const d = E.demo(), f = Object.assign({}, d.form, E.smartFill('leader', d.form)); return E.compose('leader', f, E.recommend('leader', f, [], 0), s.settings); })();
+    const VB = { 感謝: '○司令感謝…', 肯定: '他肯定…', 強調: '○司令強調，…', 期許: '○司令期許…', 提醒: '○司令提醒，…', 勉勵: '○司令勉勵…', 祝福: '最後，○司令…' };
+    const toast = s.toast ? { show: true, msg: s.toast.msg, ok: s.toast.kind === 'ok', hasUndo: !!s.toast.undo, o: s.toast.on ? 1 : 0, y: s.toast.on ? '0' : '16px',
+      onUndo: () => { const f = s.toast.undo; this.setState({ toast: null }); f && f(); } } : { show: false };
+    const box = on => ({ bd: on ? 'var(--color-accent)' : 'var(--color-neutral-400)', bg: on ? 'var(--color-accent)' : 'transparent', o: on ? 1 : 0 });
+    const kbOpen = s.kb > 120;
+
+    return {
+      ready: true, isDesk: desk, isMobile: !desk,
+      saveLabel: s.storageOk ? (s.savedAt ? '已自動保存於本機' : '資料只存在本機') : '⚠ 瀏覽器停用儲存，關閉後不保留',
+      storageNote: s.storageOk ? '' : '目前瀏覽器停用儲存，資料只在本次開啟期間有效。',
+      openMenu: () => this.openSheet('menu'),
+      steps, stepCols: 'repeat(' + steps.length + ',minmax(0,1fr))',
+      gridCols: desk ? 'minmax(0,1fr) minmax(0,1.08fr)' : 'minmax(0,1fr)', gridGap: desk ? '24px' : '0', gridPad: desk ? '0 16px' : '0',
+      leftDisplay: desk || step < 4 ? 'block' : 'none', rightDisplay: desk || step === 4 ? 'flex' : 'none',
+      rightPos: desk ? 'sticky' : 'static', rightTop: desk ? '120px' : 'auto', rightMaxH: desk ? 'calc(100dvh - 128px)' : 'none', rightOverflow: desk ? 'auto' : 'visible',
+      outKicker: desk ? 'LIVE PREVIEW' : 'STEP 04', outTitle: desk ? '即時成稿' : '成稿',
+      enterO: s.enter && step < 4 ? 0 : 1, enterX: s.enter && step < 4 ? s.enter * 24 + 'px' : '0', enterO4: s.enter && step === 4 && !desk ? 0 : 1, enterX4: s.enter && step === 4 && !desk ? '24px' : '0',
+      enterT: s.enter ? 'none' : 'opacity var(--dur) ease-out, transform var(--dur) var(--ease)',
+      tourOn: !!s.tour && step < 4 && !s.welcome, tourOn4: !!s.tour && step === 4 && !desk, tourStep: step, tourText: tourTexts[step], endTour: () => this.setState({ tour: 0 }),
+      isS1: step === 1, isS2: step === 2, isS3: step === 3,
+      typeCols: desk ? 'repeat(2,minmax(0,1fr))' : 'minmax(0,1fr)', types, typeName: T.name,
+      toStep1: () => this.goStep(1), toStep2: () => this.goStep(2), toStep4: () => this.goStep(4),
+      fields, formRef: el => { this.formEl = el; }, smartNext: () => this.smartNext(),
+      noPhrases: !ph, hasPhrases: ph, detTags, groups, selCount: s.sel.length,
+      doRecommend: () => this.recommendNow(0), doShuffle: () => this.recommendNow((s.recOffset || 0) + 1),
+      openCompose: () => { this.setState({ cmp: { c: '強調', t: '', save: true } }); this.openSheet('compose'); },
+      leftPadB: desk ? '16px' : step < 3 ? '170px' : '120px', rightPadB: desk ? '16px' : '120px',
+      barPos: desk ? 'sticky' : 'fixed', actPos: desk ? 'sticky' : 'fixed', barBottom: desk ? '0px' : s.kb + 'px', kbPx: (kbOpen ? s.kb : 0) + 'px',
+      showFab: !desk && step < 3 && !kbOpen && !s.sheet && !s.welcome, openPreview: () => this.openSheet('preview'),
+      doc: { title: doc.title, titleSegs: seg(doc.title), titleParts: (doc.title || '').split(/\s+/).filter(Boolean).map(t => { const h = /○/.test(t); return { t, bg: h ? 'var(--warn-bg)' : 'transparent', fg: h ? 'var(--warn)' : 'inherit' }; }), metaParts: (doc.meta || '').split('　').filter(Boolean).map(t => ({ t })), meta: doc.meta, paras: doc.paras.map(p => ({ segs: seg(p) })), contact: doc.contact, hasContact: !!doc.contact },
+      charCount: fullText.replace(/\s/g, '').length, isManual: s.manual != null && !s.editingDoc,
+      editingDoc: s.editingDoc, notEditingDoc: !s.editingDoc, docText: s.manual || '',
+      docRef: el => { this.docEl = el; },
+      onDocInput: e => { const el = e.target; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; this.setState({ manual: el.value }); },
+      startDocEdit: () => this.startDocEdit(), endDocEdit: e => this.endDocEdit(e), resetManual: () => this.resetManual(),
+      chk, checkItems, openChecks: () => this.openSheet('checks'), fixAll: () => this.applyFix(checks.filter(c => c.fixable).map(c => c.id)),
+      doShare: () => this.share(), doCopy: () => this.copy(), doWord: () => this.word(), doTxt: () => this.txt(), doLine: () => this.line(), doSaveDraft: () => this.saveDraft(),
+      sheetMounted, sheetTitle: sheetTitles[s.sheet] || '', sh, sheetAction, scrimO: s.sheetOn ? 1 : 0, sheetTY: s.sheetOn ? Math.max(0, s.drag) + 'px' : '100%', sheetTr, sheetH,
+      sheetMaxW: desk ? '640px' : '100%', closeSheet: () => this.closeSheet(), stopEv: e => e.stopPropagation(),
+      onGrab: e => this.grab(e), onGrabMove: e => this.grabMove(e), onGrabUp: () => this.grabUp(),
+      menuItems,
+      cmp: s.cmp, cmpPh: '例：' + (s.cmp.c === '強調' ? '各級幹部須落實裝備保養，確保戰備妥善' : '官兵持續精進本職學能'), cmpPreviewVerb: VB[s.cmp.c] || '',
+      cmpCats: E.CATS.map(c => { const on = s.cmp.c === c; return { label: c, bg: on ? 'var(--color-accent)' : 'var(--color-surface)', fg: on ? 'var(--on-accent)' : 'var(--color-text)', bd: on ? 'var(--color-accent)' : 'var(--color-divider)', onClick: () => this.setState(x => ({ cmp: Object.assign({}, x.cmp, { c }) })) }; }),
+      cmpInput: e => { const v = e.target.value; this.setState(x => ({ cmp: Object.assign({}, x.cmp, { t: v }) })); },
+      cmpBox: box(s.cmp.save), cmpToggleSave: () => this.setState(x => ({ cmp: Object.assign({}, x.cmp, { save: !x.cmp.save }) })),
+      cmpAdd: () => {
+        const c = this.state.cmp, t = (c.t || '').trim().replace(/[。]+$/, '');
+        if (!t) { this.toast('請先輸入語句內容'); return; }
+        const id = 'c' + Date.now(), sel = this.state.sel.concat([{ id, c: c.c, t, custom: true }]);
+        let myLib = this.state.myLib;
+        if (c.save) { myLib = myLib.concat([{ id: 'm' + Date.now(), c: c.c, t }]); this.store.set('myLib', myLib); }
+        this.setState({ sel, myLib }); this.closeSheet(); this.toast('已加入「' + c.c + '」' + (c.save ? '，並存入我的語庫' : ''), null, 'ok');
+      },
+      imp: s.imp, myLibCount: s.myLib.length, impInput: e => { const v = e.target.value; this.setState(x => ({ imp: Object.assign({}, x.imp, { text: v }) })); },
+      impExtract: () => { const list = E.extract(this.state.imp.text).map(x => Object.assign(x, { on: true })); this.setState(x => ({ imp: Object.assign({}, x.imp, { list }) })); this.toast(list.length ? '找到 ' + list.length + ' 句，請勾選要保存的' : '找不到「期勉、強調、提醒、肯定…」後的語句', null, list.length ? 'ok' : ''); },
+      impList: s.imp.list.map((x, i) => Object.assign({}, x, { bd: x.on ? 'var(--color-accent)' : 'var(--color-divider)', bg: x.on ? 'var(--color-accent-100)' : 'transparent', boxBd: x.on ? 'var(--color-accent)' : 'var(--color-neutral-400)', boxBg: x.on ? 'var(--color-accent)' : 'transparent', o: x.on ? 1 : 0,
+        onToggle: () => this.setState(y => ({ imp: Object.assign({}, y.imp, { list: y.imp.list.map((z, j) => (j === i ? Object.assign({}, z, { on: !z.on }) : z)) }) })),
+        onEdit: e => { const v = e.target.value; this.setState(y => ({ imp: Object.assign({}, y.imp, { list: y.imp.list.map((z, j) => (j === i ? Object.assign({}, z, { t: v }) : z)) }) })); } })),
+      impHas: s.imp.list.length > 0, impOnN: s.imp.list.filter(x => x.on).length,
+      impSave: () => { const add = this.state.imp.list.filter(x => x.on && x.t.trim()).map((x, i) => ({ id: 'm' + Date.now() + i, c: x.c, t: x.t.trim() })); if (!add.length) { this.toast('請至少勾選一句'); return; } const myLib = this.state.myLib.concat(add); this.store.set('myLib', myLib); this.setState({ myLib, imp: { text: '', list: [] } }); this.closeSheet(); this.toast('已存入 ' + add.length + ' 句至我的語庫', null, 'ok'); },
+      titleRows: s.settings.titles.map((t, i) => ({ role: t.role, full: t.full, short: t.short, onRole: e => this.setTitle(i, 'role', e.target.value), onFull: e => this.setTitle(i, 'full', e.target.value), onShort: e => this.setTitle(i, 'short', e.target.value),
+        onDel: () => { const st = this.state.settings, old = st; this.saveSettings(Object.assign({}, st, { titles: st.titles.filter((x, j) => j !== i) })); this.toast('已刪除「' + (t.role || '未命名') + '」', () => { this.saveSettings(old); this.toast('已復原', null, 'ok'); }); } })),
+      addTitle: () => { const st = this.state.settings; this.saveSettings(Object.assign({}, st, { titles: st.titles.concat([{ role: '', full: '', short: '' }]) })); },
+      brOpts: [['full', '今（10）日'], ['half', '今(10)日']].map(([k, label]) => { const on = (s.settings.bracket || 'full') === k; return { label, bg: on ? 'var(--color-accent)' : 'transparent', fg: on ? 'var(--on-accent)' : 'var(--color-text)', onClick: () => this.saveSettings(Object.assign({}, this.state.settings, { bracket: k })) }; }),
+      contact: s.settings.contact || '', setContact: e => this.saveSettings(Object.assign({}, this.state.settings, { contact: e.target.value })),
+      noDrafts: !s.drafts.length,
+      draftRows: s.drafts.map(d => ({ title: d.title || '（未命名）', sub: ago(d.at) + '・' + ((E.TYPES.find(t => t.k === d.type) || {}).name || ''),
+        onLoad: () => { const sn = this.snap(); this.setState({ type: d.type, form: d.form, sel: d.sel, manual: d.manual, editingDoc: false }); this.closeSheet(); this.goStep(desk ? 3 : 4); this.toast('已載入草稿', this.undoTo(sn)); },
+        onDel: () => { const sn = this.snap(), drafts = this.state.drafts.filter(x => x.id !== d.id); this.setState({ drafts }); this.store.set('drafts', drafts); this.toast('已刪除草稿', this.undoTo(sn)); } })),
+      ex: { title: ex.title, meta: ex.meta, paras: ex.paras },
+      loadExample: () => { const sn = this.snap(), d = E.demo(), f = Object.assign({}, d.form, E.smartFill('leader', d.form)); this.setState({ type: 'leader', form: f, sel: E.recommend('leader', f, [], 0), manual: null }); this.closeSheet(); this.goStep(desk ? 3 : 4); this.toast('已載入範例', this.undoTo(sn)); },
+      toast, toastBottom: desk ? '24px' : 'calc(' + (s.kb + 92) + 'px + env(safe-area-inset-bottom))',
+      welcome: !!s.welcome, welO: s.welO, startDemo: () => this.startDemo(), skipWelcome: () => this.skipWelcome()
+    };
+  }
+  onFieldKey = e => {
+    if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+    e.preventDefault();
+    const els = Array.from(document.querySelectorAll('[data-field]')), i = els.indexOf(e.target);
+    if (i >= 0 && els[i + 1]) els[i + 1].focus(); else e.target.blur();
+  };
+  onFieldFocus = e => {
+    const el = e.target;
+    setTimeout(() => {
+      const v = window.visualViewport, r = el.getBoundingClientRect(), h = v ? v.height : window.innerHeight;
+      const limit = h - 96;
+      if (r.bottom > limit) window.scrollBy({ top: r.bottom - limit + 16, behavior: 'smooth' });
+      else if (r.top < 120) window.scrollBy({ top: r.top - 130, behavior: 'smooth' });
+    }, 320);
+  };
+}
+</script>
+</body>
+</html>
