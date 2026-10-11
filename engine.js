@@ -7,12 +7,25 @@
     ['island', '外島', /外島|澎湖|馬公|金門|馬祖|東沙|南沙|蘭嶼|綠島/],
     ['radar', '雷達／戰管', /雷達|戰管|警戒/],
     ['missile', '防空飛彈', /飛彈|防空|天弓|愛國者|防砲/],
-    ['school', '院校', /學院|官校|學校|院校|訓練中心|學員/],
+    ['school', '院校', /學院|官校|學校|院校|訓練中心|訓練指揮部|飛訓|學員/],
     ['medic', '救護隊', /救護|醫務|醫療|衛生/],
     ['band', '樂儀隊', /樂隊|儀隊|樂儀/],
     ['maint', '修護後勤', /修護|後勤|補給|基勤|保修|彈藥|油料|工程/],
     ['wing', '飛行聯隊', /聯隊|大隊|中隊|作戰隊|飛行|戰術|展演/]
   ];
+  // 單位清單（依維基百科「國防部空軍司令部」「空軍作戰指揮部」等條目整理）[群組, [[名稱, 類型]]]
+  const UNIT_GROUPS = [
+    ['司令部', [['空軍司令部', '']]],
+    ['作戰指揮部', [['空軍作戰指揮部', ''], ['空軍戰術管制聯隊', 'radar'], ['空軍北部區域作戰管制中心', 'radar'], ['空軍南部區域作戰管制中心', 'radar'], ['空軍通信航管資訊聯隊', 'maint'], ['空軍氣象聯隊', '']]],
+    ['雷達部隊', [['空軍第一雷達中隊', 'radar'], ['空軍第二雷達中隊', 'radar'], ['空軍第三雷達中隊', 'radar'], ['空軍第四雷達中隊（金門）', 'island'], ['空軍第五雷達中隊（東引）', 'island'], ['空軍第六雷達中隊', 'radar'], ['空軍第七雷達中隊（澎湖）', 'island'], ['空軍第一機動雷達分隊', 'radar'], ['空軍第二機動雷達分隊', 'radar'], ['空軍第三機動雷達分隊', 'radar']]],
+    ['防空暨飛彈指揮部', [['空軍防空暨飛彈指揮部', 'missile'], ['空軍防空第七九一旅', 'missile'], ['空軍防空第七九二旅', 'missile'], ['空軍防空第七九三旅', 'missile'], ['空軍防空第七九四旅', 'missile'], ['空軍防空第七九五旅', 'missile'], ['空軍防空砲兵管制中心', 'missile'], ['空軍防空暨飛彈保修總廠', 'maint']]],
+    ['作戰聯隊', [['空軍松山基地指揮部', 'wing'], ['空軍第一戰術戰鬥機聯隊', 'wing'], ['空軍第二戰術戰鬥機聯隊', 'wing'], ['空軍第三戰術戰鬥機聯隊', 'wing'], ['空軍第四戰術戰鬥機聯隊', 'wing'], ['空軍第五戰術混合聯隊', 'wing'], ['空軍第六混合聯隊', 'wing'], ['空軍第七戰術戰鬥機聯隊', 'wing'], ['空軍救護隊', 'medic'], ['空軍第十大隊', 'wing']]],
+    ['保修指揮部', [['空軍保修指揮部', 'maint'], ['空軍第一後勤指揮部', 'maint'], ['空軍第三後勤指揮部', 'maint'], ['空軍料配件總庫', 'maint']]],
+    ['院校與訓練', [['空軍軍官學校', 'school'], ['空軍飛行訓練指揮部', 'school'], ['空軍航空技術學院', 'school'], ['空軍教育訓練暨準則發展指揮部', 'school'], ['空軍基地訓練指揮部', 'school'], ['空軍防空砲兵訓練中心', 'school'], ['空軍航空科技研究發展中心', '']]],
+    ['其他', [['空軍樂儀隊', 'band'], ['外島部隊', 'island']]]
+  ];
+  const UNIT_KIND = {}; UNIT_GROUPS.forEach(g => g[1].forEach(u => { UNIT_KIND[u[0]] = u[1]; }));
+  const UNIT_NAMES = {}; UNITS.forEach(u => { UNIT_NAMES[u[0]] = u[1]; });
   const CATS = ['感謝', '肯定', '強調', '期許', '提醒', '勉勵', '祝福'];
 
   // [類別, 語句, 場合, 單位, ★, 群組 u=長官/典禮 h=司令部]
@@ -23,7 +36,7 @@
     ['感謝', '官兵在颱風期間全力投入防颱整備與災後復原，展現國軍「救災視同作戰」的決心', 'typhoon', '', 1],
     ['感謝', '全體展演官兵連日辛勤訓練，以精湛技術展現空軍堅實戰力', 'nat', '', 0],
     ['感謝', '官兵長期戍守外島，克服環境艱困，默默守護國家安全', '', 'island', 0],
-    ['感謝', '官兵平日堅守崗位、任勞任怨，為空軍戰力奠定穩固基礎', '', '', 0],
+    ['感謝', '官兵平日任勞任怨、默默付出，為空軍戰力奠定穩固基礎', '', '', 0],
     ['肯定', '{單位}全年無休執行空情監偵，是守護領空的「千里眼」', '', 'radar', 0],
     ['肯定', '{單位}嚴密監控空域動態，確保防空作戰即時應變', '', 'missile', 0],
     ['肯定', '{單位}飛行員與地勤人員密切合作，確保每一架次任務安全圓滿', '', 'wing', 0],
@@ -46,12 +59,22 @@
     ['強調', '唯有平時扎實訓練，才能於關鍵時刻發揮戰力', '', '', 0],
     ['期許', '展演人員秉持「追求卓越」精神，持續淬鍊專業技能、強化團隊合作', 'nat', '', 1],
     ['期許', '學員珍惜學習機會，將所學運用於部隊任務', '', 'school', 0],
+    ['期許', '結訓學員秉持所學，在各自崗位發揮專業，為空軍戰力注入新血', '', '', 0, 'c'],
+    ['期許', '新任主官承先啟後，帶領單位持續精進戰力', '', '', 0, 'x'],
+    ['肯定', '新機接裝人員全心投入訓練與整備，確保新機順利成軍', '', '', 0, 'j'],
     ['期許', '全體官兵持續精進專業、強化戰技，共同守護國家安全', '', '', 0],
     ['期許', '官兵發揮團隊精神，以「零缺失」的標準完成每項任務', '', '', 0],
     ['提醒', '連假期間官兵返家休假，務必注意交通安全，平安歸建', 'spring,moon,boat', '', 0],
     ['提醒', '各級幹部加強宣導嚴禁酒駕、反毒與防詐，共同維護部隊安全', '', '', 1],
     ['提醒', '各級幹部落實官兵關懷，及時掌握同仁身心狀況', '', '', 0],
     ['勉勵', '官兵保重身體、照顧家人，在工作與生活間取得平衡', '', '', 0],
+    ['肯定', '同仁堅守崗位、戮力戰訓本務的辛勞付出', '', '', 1],
+    ['強調', '全體官兵應持恆強化本職學能，恪遵軍紀要求；各級幹部則須落實人員照護與危安預防，主動防杜潛在風險', '', '', 1],
+    ['提醒', '訓練及執勤過程須落實危安管控，完善裝備維護與後勤整備，確保官兵權益與部隊任務兼顧', '', '', 1],
+    ['提醒', '務必注意各項風險、落實勤前提示與安全管控作為，並恪遵飛行紀律及標準作業程序', 'nat', '', 1],
+    ['期許', '全體參演人員秉持「精益求精」精神，從嚴要求各項細節，為空軍爭取最高榮譽', 'nat', 'band', 1],
+    ['期許', '學員堅定志向、毋忘初衷，以壯志凌雲的抱負穩健前行', '', 'school', 1],
+    ['強調', '飛官須嚴守飛行紀律，以「每一次飛行都當作第一次飛行」的謹慎態度，朝「飛安零失誤」目標穩健邁進', '', 'school,wing', 1],
     ['祝福', '代表空軍向全體官兵及眷屬拜早年，祝福大家新春愉快、闔家平安', 'spring', '', 0],
     ['祝福', '預祝全體官兵及眷屬中秋佳節愉快、闔家團圓', 'moon', '', 0],
     ['祝福', '祝福全體官兵及眷屬端午佳節平安健康', 'boat', '', 0],
@@ -79,7 +102,7 @@
     date: { label: '活動日期', kind: 'date' },
     action: { label: '動作', kind: 'chips', opts: ['視導', '慰問', '主持'] },
     occ: { label: '場合', kind: 'chips', opts: OCC },
-    target: { label: '對象', kind: 'text', ph: '例：空軍第二雷達中隊', req: 1, unit: 1 },
+    target: { label: '對象單位', kind: 'unit', ph: '輸入單位名稱', req: 1, unit: 1 },
     event: { label: '主持活動名稱', kind: 'text', ph: '例：國慶展演任務誓師' },
     purpose: { label: '目的', kind: 'area', ph: '智慧帶入會自動填寫' },
     process: { label: '過程', kind: 'area', ph: '智慧帶入會自動填寫' },
@@ -87,7 +110,7 @@
     pubDate: { label: '發布日期', kind: 'date', ph: '預設今天' },
     extra: { label: '補充段落', kind: 'area', ph: '其他想加入的內容' },
     kind: { label: '典禮類型', kind: 'chips', opts: ['結訓', '交接', '交機'] },
-    place: { label: '地點／單位', kind: 'text', ph: '例：空軍官校', req: 1, unit: 1 },
+    place: { label: '地點／單位', kind: 'unit', ph: '輸入單位名稱', req: 1, unit: 1 },
     subject: { label: '名稱', kind: 'text', ph: '例：114年度戰術領隊班', req: 1 },
     detail: { label: '典禮內容', kind: 'area', ph: '例：計32員完成訓練' },
     report: { label: '報導內容摘要', kind: 'area', ph: '例：網傳本軍戰機於○○迫降' },
@@ -140,7 +163,7 @@
   const clean = s => (s || '').trim().replace(/[。．.，,；;\s]+$/, '');
   const has = s => !!clean(s);
   const H = '○○';
-  function detectUnit(s) { for (const u of UNITS) if (u[2].test(s || '')) return { k: u[0], name: u[1] }; return null; }
+  function detectUnit(s) { const k = UNIT_KIND[(s || '').trim()]; if (k !== undefined) return k ? { k, name: UNIT_NAMES[k] } : null; for (const u of UNITS) if (u[2].test(s || '')) return { k: u[0], name: u[1] }; return null; }
   const occKey = o => OK[o] || 'any';
   const sub = (t, unit) => t.replace(/\{單位\}/g, clean(unit) || '該單位');
   function who(f, st) {
@@ -148,7 +171,8 @@
     const hd = r => (r || '').replace(/（.*?）|\(.*?\)/g, '');
     return t ? { role: hd(t.role), full: t.full || hd(t.role), short: t.short || hd(t.role) } : { role: f.person || H, full: f.person || H, short: f.person || H };
   }
-  const unitOf = (type, f) => type === 'ceremony' ? f.place : f.target;
+  const unitOf = (type, f) => (type === 'ceremony' ? f.place : f.target) || '';
+  const uname = s => (s || '').replace(/（(金門|東引|澎湖)）$/, '');
 
   function candidates(type, f, myLib) {
     const g = PHRASES[type]; if (!g) return [];
@@ -156,10 +180,12 @@
     const list = LIB.concat((myLib || []).map(x => Object.assign({ o: [], u: [], g, mine: true }, x)));
     const out = [];
     list.forEach((p, i) => {
-      if (!p.mine && p.g !== g) return;
+      const kg = { 結訓: 'c', 交接: 'x', 交機: 'j' }[f.kind];
+      if (['c', 'x', 'j'].includes(p.g)) { if (type !== 'ceremony' || p.g !== kg) return; }
+      else if (!p.mine && p.g !== g) return;
       if (p.o.length && !p.o.includes(ok)) return;
       if (p.u.length && !p.u.includes(uk)) return;
-      out.push(Object.assign({}, p, { score: (p.o.length ? 3 : 0) + (p.u.length ? 3 : 0) + (p.star ? 1 : 0) + (p.mine ? 2 : 0), i }));
+      out.push(Object.assign({}, p, { score: (['c', 'x', 'j'].includes(p.g) ? 5 : 0) + (p.o.length ? 3 : 0) + (p.u.length ? 3 : 0) + (p.star ? 1 : 0) + (p.mine ? 2 : 0), i }));
     });
     out.sort((a, b) => b.score - a.score || a.i - b.i);
     return CATS.map(c => ({ cat: c, items: out.filter(p => p.c === c) })).filter(x => x.items.length);
@@ -187,13 +213,13 @@
   }
 
   const PURPOSE = {
-    慰問: { spring: '關切春節加強戰備期間官兵執勤情形，肯定同仁堅守崗位的辛勞，並提前致上新春祝福', moon: '關心中秋連假期間官兵執勤情形，感謝同仁戍守崗位的辛勞，並致上佳節祝福', boat: '關心端午連假期間官兵執勤情形，感謝同仁堅守崗位，並致上佳節祝福', typhoon: '慰勉投入防颱整備及災後復原工作的官兵，並了解救災執行情形', nat: '慰勉參與國慶展演任務的官兵，肯定同仁連日訓練的辛勞', drill: '慰勉參演官兵，了解演習期間官兵生活與任務執行情形', any: '關心官兵生活與執勤情形，並慰勉同仁辛勞' },
-    視導: { spring: '了解春節加強戰備期間單位整備與執勤情形', moon: '了解中秋連假期間單位戰備整備情形，並慰勉官兵辛勞', boat: '了解端午連假期間單位戰備整備情形', typhoon: '了解單位防颱整備與應變處置情形', nat: '了解國慶展演任務整備與訓練情形', drill: '了解演習各項課目執行與戰備整備情形', any: '了解單位戰備整備及訓練執行情形' },
-    主持: { any: '向與會官兵致意，並肯定全體同仁的付出' }
+    慰問: { spring: '關切春節加強戰備期間官兵執勤情形，肯定同仁堅守崗位的辛勞，並提前致上新春祝福', moon: '關切中秋連假期間官兵執勤情形，感謝同仁戍守崗位的辛勞，並致上佳節祝福', boat: '關切端午連假期間官兵執勤情形，感謝同仁堅守崗位，並致上佳節祝福', typhoon: '慰勉投入防颱整備及災後復原工作的官兵，並了解救災執行情形', nat: '慰勉參與國慶展演任務的官兵，肯定同仁連日訓練的辛勞', drill: '慰勉參演官兵，了解演習期間官兵生活與任務執行情形', any: '關切官兵生活與執勤情形，並慰勉同仁辛勞' },
+    視導: { spring: '了解春節加強戰備期間單位整備與執勤情形', moon: '了解中秋連假期間單位戰備整備情形，並慰勉官兵辛勞', boat: '了解端午連假期間單位戰備整備情形', typhoon: '了解單位防颱整備與應變處置情形', nat: '了解國慶展演任務整備與訓練情形', drill: '了解演習各項課目執行與戰備整備情形', any: '關切單位戰備整備及官兵執勤狀況' },
+    主持: { any: '向與會官兵致意' }
   };
   const EVENT = { spring: '春節團拜', moon: '中秋聯歡活動', boat: '端午加菜餐敘', nat: '國慶展演任務誓師', typhoon: '防颱整備會議', drill: '演習任務提示', any: '' };
-  const PROCESS = { radar: '聽取單位任務簡報，實地走訪雷達作業室及官兵生活區域', missile: '聽取單位任務簡報，實地察看飛彈陣地及戰備值班情形', wing: '聽取聯隊任務簡報，實地走訪棚廠、待命室及修護作業區', maint: '聽取單位簡報，實地察看修護棚廠及料件管理作業', island: '聽取單位任務簡報，實地走訪據點陣地及官兵生活區域', school: '聽取校務簡報，並實地察看教學與訓練設施', medic: '聽取任務簡報，實地察看救護裝備與待命整備情形', band: '觀摩樂儀隊操演，並與隊員互動交流', any: '聽取單位任務簡報，並實地走訪官兵工作與生活區域' };
-  const GIFT = { spring: '，並致贈慰問品，與官兵互道新春祝福', moon: '，並致贈月餅及慰問品，與官兵共度佳節', boat: '，並致贈粽子及慰問品', typhoon: '，並致贈慰問品，慰勉官兵辛勞', any: '，並致贈慰問品' };
+  const PROCESS = { radar: '聽取單位任務簡報，並實地走訪雷達作業室及官兵生活區域，關心官兵勤務與生活狀況', missile: '聽取單位任務簡報，實地察看飛彈陣地及戰備值班情形', wing: '聽取聯隊任務簡報，實地走訪棚廠、待命室及修護作業區', maint: '聽取單位簡報，實地察看修護棚廠及料件管理作業', island: '聽取任務簡報，並實地走訪裝備及生活區域，關心官兵勤務與生活狀況', school: '聽取校務簡報，並實地察看教學與訓練設施', medic: '聽取任務簡報，實地察看救護裝備與待命整備情形', band: '觀摩樂儀隊操演，並與隊員互動交流', any: '聽取單位任務簡報，並實地走訪官兵工作與生活區域，關心官兵勤務與生活狀況' };
+  const GIFT = { spring: '，亦致贈慰問品，與官兵互道新春祝福', moon: '，亦致贈月餅及慰問品，與官兵共度佳節', boat: '，亦致贈粽子及慰問品', typhoon: '，亦致贈慰問品，慰勉官兵辛勞', any: '，亦致贈慰問品' };
   const TAIL = { spring: '勉戰備不懈 守護國人安心過年', moon: '感謝堅守崗位 守護國人團圓', boat: '勉落實戰備 確保佳節安全', nat: '勉精益求精 展現空軍堅實戰力', typhoon: '肯定救災辛勞 守護家園', drill: '勉戰訓合一 驗證作戰能力' };
   const CER = { 結訓: '勉勵結訓學員將所學運用於部隊任務', 交接: '期勉新任主官承先啟後，持續精進單位戰力', 交機: '象徵空軍戰力持續提升' };
 
@@ -227,6 +253,19 @@
     });
     return out;
   }
+  function pick(sel, unit) {
+    const by = c => sel.filter(s => s.c === c).map(s => phraseText(s, unit)).filter(Boolean);
+    return { th: by('感謝'), pr: by('肯定'), em: by('強調'), ex: by('期許').concat(by('勉勵')), rm: by('提醒'), bl: by('祝福') };
+  }
+  const thx = (th, pr) => th.length && pr.length ? '除感謝' + th.join('，也感謝') + '，亦肯定' + pr.join('，並肯定') : th.length ? '感謝' + th.join('，也感謝') : pr.length ? '肯定' + pr.join('，並肯定') : '';
+  function emphPara(S, em, ex) {
+    if (!em.length && !ex.length) return '';
+    ex = ex.slice();
+    let s = S + (em.length ? '強調，' + em.join('；同時') : '期許' + ex.shift());
+    if (ex.length) s += (em.length ? '；並期許' : '；也期勉') + ex.shift();
+    ex.forEach(x => { s += '；也期勉' + x; });
+    return s + '。';
+  }
   function blessings(sel, S, unit) { return sel.filter(s => s.c === '祝福').map(s => '最後，' + S + phraseText(s, unit) + '。'); }
 
   function compose(type, f, sel, st) {
@@ -235,22 +274,32 @@
     const paras = []; let title = clean(f.title), ctx = { last: '' };
     const meta = '發布單位：空軍司令部　發布日期：' + roc(pub);
     if (type === 'leader') {
-      const w = who(f, st), tgt = clean(f.target) || H, a = f.action || '視導';
+      const w = who(f, st), tgt = clean(uname(f.target)) || H, a = f.action || '視導';
       if (a === '主持') paras.push(w.full + day + '於' + tgt + '主持' + (clean(f.event) || H) + '，' + (clean(f.purpose) || H) + '。');
       else paras.push(w.full + day + '赴' + tgt + (occL ? '實施' + occL + a : a) + '，' + (clean(f.purpose) || H) + '。');
-      if (has(f.process)) paras.push((a === '主持' ? '活動中' : a + '期間') + '，' + w.short + clean(f.process) + '。');
-      paras.push(...phraseParas(sel, w.short, '他', tgt, ctx));
+      const P = pick(sel, tgt), S = w.short, pc = thx(P.th, P.pr), pr = clean(f.process);
+      let p2 = pr ? (a === '主持' ? '活動中' : a + '期間') + '，' + S + pr : '';
+      if (pc) p2 = !p2 ? S + pc : (P.th.length && P.pr.length) ? p2 + '。' + S + pc : p2 + (/並/.test(pr) ? '，同時' : '，並') + pc;
+      if (P.rm.length) p2 = (p2 ? p2 + '；另' : S) + '提醒' + P.rm.join('，並叮囑');
+      if (p2) paras.push(p2 + '。');
+      const p3 = emphPara(S, P.em, P.ex); if (p3) paras.push(p3);
       if (has(f.extra)) paras.push(clean(f.extra) + '。');
-      paras.push(...blessings(sel, w.short, tgt));
-      if (!title) title = a === '主持' ? w.role + '主持' + (clean(f.event) || H) : w.role + occL + a + tgt + (TAIL[ok] ? ' ' + TAIL[ok] : a === '視導' ? ' 勉精實訓練 強化戰備' : a === '慰問' ? ' 肯定官兵辛勞' : '');
+      if (P.bl.length) paras.push('最後，' + S + P.bl.join('，並') + '。');
+      const tp = w.role === '司令' ? '司令' : S;
+      if (!title) title = a === '主持' ? tp + '主持' + (clean(f.event) || H) : tp + occL + a + tgt + (TAIL[ok] ? ' ' + TAIL[ok] : a === '視導' ? ' 勉精實訓練 強化戰備' : a === '慰問' ? ' 肯定官兵辛勞' : '');
     } else if (type === 'ceremony') {
-      const w = who(f, st), pl = clean(f.place) || H, sj = clean(f.subject) || H, k = f.kind || '結訓';
+      const w = who(f, st), pl = clean(uname(f.place)) || H, sj = clean(f.subject) || H, k = f.kind || '結訓';
       const name = k === '結訓' ? '「' + sj + '」結訓典禮' : k === '交接' ? sj + '主官交接典禮' : sj + '交機典禮';
       paras.push(w.full + day + '於' + pl + '主持' + name + '，' + (clean(f.purpose) || H) + '。');
       if (has(f.detail)) paras.push(clean(f.detail) + '。');
-      paras.push(...phraseParas(sel, w.short, '他', pl, ctx));
-      paras.push(...blessings(sel, w.short, pl));
-      if (!title) title = w.role + '主持' + (k === '結訓' ? sj + '結訓典禮' : name);
+      const P = pick(sel, pl), S = w.short;
+      const said = [P.pr.length && '肯定' + P.pr.join('，並肯定'), P.em.length && (P.pr.length ? '並強調，' : '強調，') + P.em.join('；同時')].filter(Boolean).join('，');
+      let p3 = said ? S + '致詞時' + said + '。' : '';
+      if (P.th.length) p3 += S + (said ? '亦特別感謝' : '感謝') + P.th.join('，也感謝') + '。';
+      if (P.rm.length) p3 += S + '另提醒' + P.rm.join('，並叮囑') + '。';
+      if (p3) paras.push(p3);
+      if (P.ex.length || P.bl.length) paras.push('最後，' + S + (P.ex.length ? '期許' + P.ex.join('，也期勉') : '') + (P.bl.length ? (P.ex.length ? '，並' : '') + P.bl.join('，並') : '') + '。');
+      if (!title) title = (w.role === '司令' ? '司令' : S) + '主持' + (k === '結訓' ? sj + '結訓典禮' : name);
     } else if (type === 'clarify') {
       const sj = clean(f.subject) || H;
       paras.push('針對媒體報導「' + sj + '」一事，空軍司令部' + day + '提出說明。');
@@ -331,8 +380,8 @@
       out.push({ id: r.id, title: r.title, detail: r.note || ('出現 ' + m.length + ' 處：' + Array.from(new Set(m)).slice(0, 3).join('、')), count: m.length, fixable: !!r.fix, go: r.go || 0 });
     });
     if (!st || st.bracket !== 'half') { const m = all.match(/[今昨]\((\d+)\)日/g); if (m) out.push({ id: 'paren', title: '日期括號應為全形', detail: m.join('、'), count: m.length, fixable: true }); }
-    const long = doc.paras.join('').split(/[。！？]/).filter(s => s.length > 80);
-    if (long.length) out.push({ id: 'long', title: '句子過長', detail: long.length + ' 句超過 80 字，建議拆句：「' + long[0].slice(0, 14) + '…」', count: long.length, fixable: false });
+    const long = doc.paras.join('').split(/[。！？]/).filter(s => s.length > 130);
+    if (long.length) out.push({ id: 'long', title: '句子過長', detail: long.length + ' 句超過 130 字，建議拆句：「' + long[0].slice(0, 14) + '…」', count: long.length, fixable: false });
     const tl = (doc.title || '').replace(/\s/g, '').length;
     if (tl > 30) out.push({ id: 'tlen', title: '標題超過 30 字', detail: '目前 ' + tl + ' 字，可在「更多細節」自訂較短標題', count: 1, fixable: false, go: 2 });
     return out;
@@ -371,11 +420,11 @@
     return s;
   }
   const defaultSettings = () => ({
-    titles: [{ role: '司令', full: '空軍司令鄭榮豐上將', short: '鄭司令' }, { role: '副司令（王）', full: '空軍副司令王德揚中將', short: '王副司令' }, { role: '副司令（顏）', full: '空軍副司令顏有賢中將', short: '顏副司令' }, { role: '參謀長', full: '空軍參謀長李慶然中將', short: '李參謀長' }, { role: '政戰主任', full: '空軍司令部政戰主任虞德忠中將', short: '虞主任' }],
+    titles: [{ role: '司令', full: '司令鄭上將', short: '鄭司令' }, { role: '副司令（王）', full: '副司令王中將', short: '王副司令' }, { role: '副司令（顏）', full: '副司令顏中將', short: '顏副司令' }, { role: '參謀長', full: '參謀長李中將', short: '李參謀長' }, { role: '政戰主任', full: '政戰主任虞中將', short: '虞政戰主任' }],
     bracket: 'full', contact: ''
   });
   const blankForm = () => ({ person: '司令', date: today(), pubDate: '', action: '視導', occ: '一般', target: '', kind: '結訓', areas: [] });
   const demo = () => ({ type: 'leader', form: Object.assign(blankForm(), { person: '司令', date: '2026-02-10', pubDate: '2026-02-10', action: '慰問', occ: '春節', target: '空軍第二雷達中隊' }), sel: [], manual: null });
 
-  window.PRE = { OCC, CATS, TYPES, F, SCHEMA, PHRASES, LIB, detectUnit, occKey, sub, candidates, recommend, smartFill, compose, toText, parseText, checks, fixer, extract, wordHtml, makeStore, defaultSettings, blankForm, demo, roc, dayLabel, today, iso, unitOf, normalize };
+  window.PRE = { UNIT_GROUPS, UNIT_KIND, uname, OCC, CATS, TYPES, F, SCHEMA, PHRASES, LIB, detectUnit, occKey, sub, candidates, recommend, smartFill, compose, toText, parseText, checks, fixer, extract, wordHtml, makeStore, defaultSettings, blankForm, demo, roc, dayLabel, today, iso, unitOf, normalize };
 })();
